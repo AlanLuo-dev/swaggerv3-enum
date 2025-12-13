@@ -58,12 +58,13 @@ public interface EnumSchema<K extends Serializable, T extends Enum<T> & EnumSche
 
     @SuppressWarnings("unchecked")
     static <K extends Serializable, T extends Enum<T> & EnumSchema<K, T>> Map<K, String> getMap(Class<T> enumClass) {
-        if (enumClass.getEnumConstants() == null || enumClass.getEnumConstants().length == 0) {
+        final T[] enumConstants = enumClass.getEnumConstants();
+        if (enumConstants == null || enumConstants.length == 0) {
             return Collections.emptyMap();
         }
 
         // 触发枚举实例的getMap()生成缓存
-        return enumClass.getEnumConstants()[0].getMap();
+        return enumConstants[0].getMap();
     }
 
 
