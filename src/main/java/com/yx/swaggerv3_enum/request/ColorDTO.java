@@ -13,6 +13,6 @@ public class ColorDTO {
     @Schema(description = "颜色")
     private ColorEnum color;
 
-    @Schema(description = "描述")
-    private String desc;
+    @Schema(description = "用户名")
+    private String username;
 }

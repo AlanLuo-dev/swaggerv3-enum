@@ -45,30 +45,23 @@ public class EnumTestController {
         return query;
     }
 
-    @Operation(summary = "提交颜色（枚举作为请求体）")
-    @PostMapping("/color")
-    public ColorEnum postColor(@RequestBody(description = "颜色枚举值", required = true, content = @Content(schema = @Schema(implementation = ColorEnum.class)))
-                               @org.springframework.web.bind.annotation.RequestBody ColorEnum color) {
+    @Operation(summary = "POST方法提交JSON（枚举 作为Controller方法的参数）")
+    @PostMapping("/RequestBody/Enum_As_Controller_Method_Parameter")
+    public ColorEnum _RequestBody_Enum_As_Controller_Method_Parameter(@RequestBody(description = "颜色对象")
+                                                           @org.springframework.web.bind.annotation.RequestBody ColorEnum color) {
         return color;
     }
 
-    @Operation(summary = "提交颜色对象")
-    @PostMapping("/color/object")
-    public ColorDTO postColorObject(
-            @RequestBody(
-                    description = "颜色对象",
-                    required = true,
-                    content = @Content(
-                            schema = @Schema(implementation = ColorDTO.class)
-                    )
-            )
+    @Operation(summary = "POST方法提交JSON（枚举 作为对象参数的属性）")
+    @PostMapping("/RequestBody/Enum_As_Property_In_Object")
+    public ColorDTO _RequestBody_Enum_As_Property_In_Object(
             @org.springframework.web.bind.annotation.RequestBody ColorDTO dto) {
         return dto;
     }
 
-    @Operation(summary = "批量提交颜色")
-    @PostMapping("/color/batch")
-    public List<ColorEnum> postColorBatch(
+    @Operation(summary = "POST方法提交JSON（枚举数组 作为Controller方法的参数）")
+    @PostMapping("/RequestBody/EnumArray_As_Controller_Method_Parameter")
+    public List<ColorEnum> _RequestBody_EnumArray_As_Controller_Method_Parameter(
             @RequestBody(
                     description = "颜色枚举列表",
                     required = true,
@@ -83,9 +76,9 @@ public class EnumTestController {
         return colors;
     }
 
-    @Operation(summary = "提交包含 枚举数组的JSON对象")
-    @PostMapping("/color/batch/object")
-    public ColorBatchDTO postBatchObject(
+    @Operation(summary = "POST方法提交JSON (枚举数组 作为对象参数的属性)")
+    @PostMapping("/RequestBody/EnumArray_As_Parameter_In_Object")
+    public ColorBatchDTO _RequestBody_EnumArray_As_Parameter_In_Object(
             @RequestBody(
                     description = "颜色批量对象",
                     required = true
