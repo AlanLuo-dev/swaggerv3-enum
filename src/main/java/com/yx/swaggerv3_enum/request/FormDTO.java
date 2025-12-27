@@ -1,6 +1,7 @@
-package com.yx.swaggerv3_enum.enums;
+package com.yx.swaggerv3_enum.request;
 
 
+import com.yx.swaggerv3_enum.enums.ColorEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -15,5 +16,5 @@ public class FormDTO {
     private String password;
 
     @Schema(description = "测试枚举参数")
-    private TestCodeEnum testCodeEnum;
+    private ColorEnum colorEnum;
 }

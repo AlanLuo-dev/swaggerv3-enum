@@ -1,4 +1,4 @@
-package com.yx.swaggerv3_enum.enums;
+package com.yx.swaggerv3_enum.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

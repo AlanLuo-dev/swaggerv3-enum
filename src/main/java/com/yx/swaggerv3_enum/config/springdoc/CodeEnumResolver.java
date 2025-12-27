@@ -1,6 +1,6 @@
-package com.yx.swaggerv3_enum.me.swagger;
+package com.yx.swaggerv3_enum.config.springdoc;
 
-import com.yx.swaggerv3_enum.me.EnumSchema;
+import com.yx.swaggerv3_enum.config.core.EnumSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 

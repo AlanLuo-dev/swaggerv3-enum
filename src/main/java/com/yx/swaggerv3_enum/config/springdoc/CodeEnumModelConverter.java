@@ -1,4 +1,4 @@
-package com.yx.swaggerv3_enum.me.swagger;
+package com.yx.swaggerv3_enum.config.springdoc;
 
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.util.Json;

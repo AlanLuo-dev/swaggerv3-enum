@@ -1,8 +1,9 @@
-package com.yx.swaggerv3_enum.me;
+package com.yx.swaggerv3_enum.config.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.yx.swaggerv3_enum.config.core.EnumSchema;
 
 import java.io.IOException;
 import java.io.Serializable;

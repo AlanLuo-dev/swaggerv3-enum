@@ -1,8 +1,11 @@
-package com.yx.swaggerv3_enum.me;
+package com.yx.swaggerv3_enum.config;
 
-import com.yx.swaggerv3_enum.me.swagger.CodeEnumModelConverter;
-import com.yx.swaggerv3_enum.me.swagger.CodeEnumPropertyCustomizer;
-import com.yx.swaggerv3_enum.me.swagger.EnumParameterCustomizer;
+
+import com.yx.swaggerv3_enum.config.convert.EnumSchemaConverterFactory;
+import com.yx.swaggerv3_enum.config.core.EnumSchema;
+import com.yx.swaggerv3_enum.config.springdoc.CodeEnumModelConverter;
+import com.yx.swaggerv3_enum.config.springdoc.CodeEnumPropertyCustomizer;
+import com.yx.swaggerv3_enum.config.springdoc.EnumParameterCustomizer;
 import io.swagger.v3.core.jackson.ModelResolver;
 import org.springdoc.core.customizers.ParameterCustomizer;
 import org.springdoc.core.customizers.PropertyCustomizer;
@@ -14,7 +17,7 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class MvcConfiguration implements WebMvcConfigurer {
+public class EnumWebMvcConfiguration implements WebMvcConfigurer {
 
     @Bean
     public EnumSchemaConverterFactory<?> booleanToBaseEnumConverterFactory() { // 枚举转换器工厂
@@ -38,7 +41,6 @@ public class MvcConfiguration implements WebMvcConfigurer {
 
         @Bean
         public ParameterCustomizer enumParameterCustomizer() {
-            System.out.println("生效！！！！！！！！");
             return new EnumParameterCustomizer();
         }
 

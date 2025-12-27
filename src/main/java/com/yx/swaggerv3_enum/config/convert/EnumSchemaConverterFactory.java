@@ -1,5 +1,6 @@
-package com.yx.swaggerv3_enum.me;
+package com.yx.swaggerv3_enum.config.convert;
 
+import com.yx.swaggerv3_enum.config.core.EnumSchema;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
 import org.springframework.lang.NonNull;
