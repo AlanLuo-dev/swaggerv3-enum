@@ -49,7 +49,7 @@ public class EnumTestController {
     @Operation(summary = "POST方法提交JSON（枚举 作为Controller方法的参数）")
     @PostMapping("/RequestBody/Enum_As_Controller_Method_Parameter")
     public ColorEnum _RequestBody_Enum_As_Controller_Method_Parameter(@RequestBody(description = "颜色对象")
-                                                           @org.springframework.web.bind.annotation.RequestBody ColorEnum color) {
+                                                                      @org.springframework.web.bind.annotation.RequestBody ColorEnum color) {
         return color;
     }
 
@@ -101,27 +101,21 @@ public class EnumTestController {
 
     @Operation(summary = "提交表单：application/x-www-form-urlencoded （枚举 作为对象参数的属性）")
     @PostMapping(
-        value="/application/x-www-form-urlencoded/Enum_As_Property_In_Object",
-        consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE
+            value = "/application/x-www-form-urlencoded/Enum_As_Property_In_Object",
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ColorForm application_x_www_form_urlencoded_Enum_As_Property_In_Object(
-        @Parameter(content = @Content(mediaType = MediaType.APPLICATION_FORM_URLENCODED_VALUE))
-        ColorForm form
-    ) {
+    public ColorForm application_x_www_form_urlencoded_Enum_As_Property_In_Object(@Parameter ColorForm form) {
         return form;
     }
 
     @Operation(summary = "提交表单：multipart/form-data （枚举 作为对象参数的属性）")
     @PostMapping(
-        value="/multipart/form-data/Enum_As_Property_In_Object",
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE
+            value = "/multipart/form-data/Enum_As_Property_In_Object",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ColorForm multipart_form_data_Enum_As_Property_In_Object(
-        @Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
-        ColorForm form
-    ) {
+    public ColorForm multipart_form_data_Enum_As_Property_In_Object(@Parameter ColorForm form) {
         return form;
     }
 }

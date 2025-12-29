@@ -10,7 +10,7 @@ import lombok.Setter;
 @Schema(description = "颜色表单对象")
 public class ColorForm {
 
-    @Schema(description = "颜色")
+    @Schema(description = "颜色", requiredMode = Schema.RequiredMode.REQUIRED)
     private ColorEnum color;
 
     @Schema(description = "备注")
