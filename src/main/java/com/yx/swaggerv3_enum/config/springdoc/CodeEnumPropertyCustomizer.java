@@ -46,7 +46,10 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
                 HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
                 for (AnnotatedType _annotatedType : processedTypesFromContext) {
                     Annotation[] ctxAnnotations = _annotatedType.getCtxAnnotations();
-
+                    if (Objects.isNull(ctxAnnotations)) {
+                        System.out.println("=> ctxAnnotations 为 null");
+                        return schema;
+                    }
 
                     for (Annotation ctxAnnotation : ctxAnnotations) {
                         if (ctxAnnotation instanceof RequestBody) {
