@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -98,10 +99,29 @@ public class EnumTestController {
         return color;
     }
 
-    @Operation(summary = "表单对象方式提交颜色")
-    @PostMapping("/color/form/object")
-    public ColorForm postFormObject(ColorForm form) {
+    @Operation(summary = "提交表单：application/x-www-form-urlencoded （枚举 作为对象参数的属性）")
+    @PostMapping(
+        value="/application/x-www-form-urlencoded/Enum_As_Property_In_Object",
+        consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ColorForm application_x_www_form_urlencoded_Enum_As_Property_In_Object(
+        @Parameter(content = @Content(mediaType = MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+        ColorForm form
+    ) {
         return form;
     }
 
+    @Operation(summary = "提交表单：multipart/form-data （枚举 作为对象参数的属性）")
+    @PostMapping(
+        value="/multipart/form-data/Enum_As_Property_In_Object",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ColorForm multipart_form_data_Enum_As_Property_In_Object(
+        @Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+        ColorForm form
+    ) {
+        return form;
+    }
 }
