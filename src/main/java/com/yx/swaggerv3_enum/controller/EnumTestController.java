@@ -26,23 +26,21 @@ import java.util.List;
 @RequestMapping(value = "/api")
 public class EnumTestController {
 
-    @Operation(summary = "根据请求参数获取颜色")
-    @GetMapping("/color/param")
-    public ColorEnum getByParam(@Parameter(description = "颜色值", schema = @Schema(implementation = ColorEnum.class))
-                                @RequestParam ColorEnum color) {
+    @Operation(summary = "GET方法 枚举作为Controller方法的 Query参数")
+    @GetMapping("/QueryString")
+    public ColorEnum _QueryString(@Parameter(description = "颜色值") @RequestParam ColorEnum color) {
         return color;
     }
 
-    @Operation(summary = "根据路径变量获取颜色")
-    @GetMapping("/color/{color}")
-    public ColorEnum getByPath(@Parameter(description = "颜色值", schema = @Schema(implementation = ColorEnum.class))
-                               @PathVariable ColorEnum color) {
+    @Operation(summary = "GET方法 枚举作为 Controller方法的 Path参数")
+    @GetMapping("/Path/{color}")
+    public ColorEnum _Path(@Parameter(description = "颜色值") @PathVariable ColorEnum color) {
         return color;
     }
 
-    @Operation(summary = "颜色查询（对象参数）")
-    @GetMapping("/color/query")
-    public ColorQuery query(ColorQuery query) {
+    @Operation(summary = "GET方法 枚举作为对象属性形式的 Query参数")
+    @GetMapping("/QueryStringInObject")
+    public ColorQuery _QueryStringInObject(@ParameterObject ColorQuery query) {
         return query;
     }
 
