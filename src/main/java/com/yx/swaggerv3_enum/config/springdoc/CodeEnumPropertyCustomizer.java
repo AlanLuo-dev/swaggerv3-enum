@@ -28,6 +28,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
     @Override
     @SuppressWarnings("rawtypes")
     public Schema customize(Schema schema, AnnotatedType annotatedType) {
+
         if (annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
             List<EnumSchema<? extends Serializable, ?>> enumConstants =
                     List.of((EnumSchema<? extends Serializable, ?>[])type.getRawClass().getEnumConstants());
@@ -102,8 +103,8 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
         try {
             ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
             HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
-            Map<Schema, List<EnumSchema<? extends Serializable, ?>>> enumSchemaMap = new HashMap<>();
-            System.out.println("Map 的哈希: " + System.identityHashCode(enumSchemaMap));
+            Map<Schema, List<EnumSchema<? extends Serializable, ?>>> schemaEnumMap = new HashMap<>();
+            System.out.println("Map 的哈希: " + System.identityHashCode(schemaEnumMap));
 
             System.out.println("————————————————————————————————————————————————————————————————————————————");
 
@@ -114,10 +115,12 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
 
                     List<EnumSchema<? extends Serializable, ?>> enumConstants =
                             List.of((EnumSchema<? extends Serializable, ?>[]) type.getRawClass().getEnumConstants());
-                    enumSchemaMap.put(resolve, enumConstants);
+                    schemaEnumMap.put(resolve, enumConstants);
                 }
             }
 
+            // 请求标识的数量，如果大于0，则当前schema视为请求参数，否则视为 返回参数，执行对象化操作
+            int requestFlag = 0;
             for  (AnnotatedType _annotatedType : processedTypesFromContext) {
                 System.out.println("schame: " + schema.getDescription() + "  schema Type: " + schema.getType() + "       processedTypes: " + _annotatedType.getType());
                 Annotation[] ctxAnnotations = _annotatedType.getCtxAnnotations();
@@ -126,33 +129,40 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
                 }
                 for (Annotation ctxAnnotation : ctxAnnotations) {
                     if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
-
-                        // 已确定是请求参数
-                        Schema items = schema.getItems();
-                        if (enumSchemaMap.containsKey(items)) {
-                            List<EnumSchema<? extends Serializable, ?>> enumConstants = enumSchemaMap.get(items);
-                            EnumSchema<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
-                            if (Objects.nonNull(enumConstant)) {
-                                items = new ObjectSchema();
-
-                                Schema valueSchema = new StringSchema();
-                                valueSchema.setExample(enumConstant.getValue().toString()); // 示例值
-                                items.addProperty("value", valueSchema); // 加入结构化对象
-
-                                Schema labelSchema = new StringSchema();
-                                labelSchema.setExample(enumConstant.getLabel());
-                                items.addProperty("label", labelSchema);
-
-                                items.setRequired(schema.getRequired());
-                                items.setNullable(schema.getNullable());
-                                items.setDescription(schema.getDescription());
-
-                                schema.items(items);
-                            }
-                        }
-                        System.out.println("items: " + System.identityHashCode(items));
+                        requestFlag += 1;
                     }
                 }
+            }
+
+            // ----------------------------------------------------------------
+            System.out.println("请求标识注解的数量" +  requestFlag);
+            // 为返回参数的 example 执行对象化
+            if (requestFlag == 0) {
+
+                // 已确定是请求参数
+                Schema items = schema.getItems();
+                if (schemaEnumMap.containsKey(items)) {
+                    List<EnumSchema<? extends Serializable, ?>> enumConstants = schemaEnumMap.get(items);
+                    EnumSchema<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
+                    if (Objects.nonNull(enumConstant)) {
+                        items = new ObjectSchema();
+
+                        Schema valueSchema = new StringSchema();
+                        valueSchema.setExample(enumConstant.getValue().toString()); // 示例值
+                        items.addProperty("value", valueSchema); // 加入结构化对象
+
+                        Schema labelSchema = new StringSchema();
+                        labelSchema.setExample(enumConstant.getLabel());
+                        items.addProperty("label", labelSchema);
+
+                        items.setRequired(schema.getRequired());
+                        items.setNullable(schema.getNullable());
+                        items.setDescription(schema.getDescription());
+
+                        schema.items(items);
+                    }
+                }
+                System.out.println("items: " + System.identityHashCode(items));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
