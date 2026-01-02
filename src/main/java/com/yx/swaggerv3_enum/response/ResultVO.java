@@ -1,12 +1,15 @@
 package com.yx.swaggerv3_enum.response;
 
-import com.yx.swaggerv3_enum.enums.ColorEnum; 
-import io.swagger.v3.oas.annotations.media.Schema; 
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data 
-public class ResultVO { 
-    
-    @Schema(description = "返回的颜色") 
-    private ColorEnum color; 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ResultVO<T> {
+
+    @Schema(description = "返回的数据")
+    private T data;
 }

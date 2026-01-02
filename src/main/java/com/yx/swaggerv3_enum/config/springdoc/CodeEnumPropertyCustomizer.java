@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -92,6 +94,64 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             }
 
         }
+
+        Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
+        if (Objects.isNull(jsonUnwrappedHandler)) {
+            return schema;
+        }
+        try {
+            ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
+            HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
+            Map<Schema, List<EnumSchema<? extends Serializable, ?>>> enumSchemaMap = new HashMap<>();
+
+            System.out.println("————————————————————————————————————————————————————————————————————————————");
+            for  (AnnotatedType _annotatedType : processedTypesFromContext) {
+                System.out.println("schame: " + schema.getDescription() + "  schema Type: " + schema.getType() + "       processedTypes: " + _annotatedType.getType());
+                if (_annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
+                    Schema resolve = modelConverterContext.resolve(_annotatedType);
+
+                    List<EnumSchema<? extends Serializable, ?>> enumConstants =
+                            List.of((EnumSchema<? extends Serializable, ?>[]) type.getRawClass().getEnumConstants());
+                    enumSchemaMap.put(resolve, enumConstants);
+                }
+                Annotation[] ctxAnnotations = _annotatedType.getCtxAnnotations();
+                if (Objects.isNull(ctxAnnotations)) {
+                    return schema;
+                }
+                for (Annotation ctxAnnotation : ctxAnnotations) {
+                    if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
+
+                        // 已确定是请求参数
+                        Schema items = schema.getItems();
+                        if (enumSchemaMap.containsKey(items)) {
+                            List<EnumSchema<? extends Serializable, ?>> enumConstants = enumSchemaMap.get(items);
+                            EnumSchema<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
+                            if (Objects.nonNull(enumConstant)) {
+                                items = new ObjectSchema();
+
+                                Schema valueSchema = new StringSchema();
+                                valueSchema.setExample(enumConstant.getValue().toString()); // 示例值
+                                items.addProperty("value", valueSchema); // 加入结构化对象
+
+                                Schema labelSchema = new StringSchema();
+                                labelSchema.setExample(enumConstant.getLabel());
+                                items.addProperty("label", labelSchema);
+
+                                items.setRequired(schema.getRequired());
+                                items.setNullable(schema.getNullable());
+                                items.setDescription(schema.getDescription());
+
+                                schema.items(items);
+                            }
+                        }
+                        System.out.println("items: " + System.identityHashCode(items));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         return schema;
     }
 
