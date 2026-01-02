@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -105,8 +106,9 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             System.out.println("Map 的哈希: " + System.identityHashCode(enumSchemaMap));
 
             System.out.println("————————————————————————————————————————————————————————————————————————————");
+
+            // 收集 枚举类型的字段的 schema 和 枚举的对应关系，组成HashMap
             for  (AnnotatedType _annotatedType : processedTypesFromContext) {
-                System.out.println("schame: " + schema.getDescription() + "  schema Type: " + schema.getType() + "       processedTypes: " + _annotatedType.getType());
                 if (_annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
                     Schema resolve = modelConverterContext.resolve(_annotatedType);
 
@@ -114,6 +116,10 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
                             List.of((EnumSchema<? extends Serializable, ?>[]) type.getRawClass().getEnumConstants());
                     enumSchemaMap.put(resolve, enumConstants);
                 }
+            }
+
+            for  (AnnotatedType _annotatedType : processedTypesFromContext) {
+                System.out.println("schame: " + schema.getDescription() + "  schema Type: " + schema.getType() + "       processedTypes: " + _annotatedType.getType());
                 Annotation[] ctxAnnotations = _annotatedType.getCtxAnnotations();
                 if (Objects.isNull(ctxAnnotations)) {
                     return schema;
