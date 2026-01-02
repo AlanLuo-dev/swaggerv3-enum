@@ -40,7 +40,6 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
 
             Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
             if (Objects.isNull(jsonUnwrappedHandler)) {
-                System.out.println("=> jsonUnwrappedHandler 为 null");
                 return schema;
             }
             try {
@@ -103,6 +102,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
             HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
             Map<Schema, List<EnumSchema<? extends Serializable, ?>>> enumSchemaMap = new HashMap<>();
+            System.out.println("Map 的哈希: " + System.identityHashCode(enumSchemaMap));
 
             System.out.println("————————————————————————————————————————————————————————————————————————————");
             for  (AnnotatedType _annotatedType : processedTypesFromContext) {

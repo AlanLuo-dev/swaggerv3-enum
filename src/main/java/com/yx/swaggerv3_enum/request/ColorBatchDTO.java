@@ -14,7 +14,4 @@ public class ColorBatchDTO {
 
     @Schema(description = "颜色列表")
     private List<ColorEnum> colors;
-
-    @Schema(description = "操作人")
-    private String operator;
 }
