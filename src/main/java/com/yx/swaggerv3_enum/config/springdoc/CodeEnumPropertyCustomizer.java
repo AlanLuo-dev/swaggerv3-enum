@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.customizers.PropertyCustomizer;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -23,6 +24,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
 
     @Override
@@ -50,25 +52,18 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
                 for (AnnotatedType _annotatedType : processedTypesFromContext) {
                     Annotation[] ctxAnnotations = _annotatedType.getCtxAnnotations();
                     if (Objects.isNull(ctxAnnotations)) {
-                        System.out.println("=> ctxAnnotations 为 null");
+                        log.info("=> ctxAnnotations 为 null");
                         return schema;
                     }
 
                     for (Annotation ctxAnnotation : ctxAnnotations) {
-                        if (ctxAnnotation instanceof RequestBody) {
-                            System.out.println("找到 @RequestBody 注解，当前参数是请求参数");
-
-                            return schema;
-                        }
-
-                        if (ctxAnnotation instanceof Parameter) {
-                            System.out.println("找到 @Parameter 注解，当前参数是请求参数");
+                        if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
+                            log.info(" >>> 找到 @{} 注解，当前参数是请求参数!!", ctxAnnotation.annotationType().getSimpleName());
 
                             return schema;
                         }
                     }
                 }
-                System.out.println("未找到 @RequestBody 注解");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -95,7 +90,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             }
 
         }
-
+        log.info("————————————————————————————————————————————————————————————————————————————");
         Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
         if (Objects.isNull(jsonUnwrappedHandler)) {
             return schema;
@@ -104,9 +99,6 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
             HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
             Map<Schema, List<EnumSchema<? extends Serializable, ?>>> schemaEnumMap = new HashMap<>();
-            System.out.println("Map 的哈希: " + System.identityHashCode(schemaEnumMap));
-
-            System.out.println("————————————————————————————————————————————————————————————————————————————");
 
             // 收集 枚举类型的字段的 schema 和 枚举的对应关系，组成HashMap
             for  (AnnotatedType _annotatedType : processedTypesFromContext) {
@@ -122,13 +114,14 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             // 返回参数标识：true = 当前Schema是返回参数，false = 当前Schema是请求参数
             boolean isResponseParam = true;
             for  (AnnotatedType _annotatedType : processedTypesFromContext) {
-                System.out.println("schame: " + schema.getDescription() + "  schema Type: " + schema.getType() + "       processedTypes: " + _annotatedType.getType());
+                log.info("schame: " + schema.getDescription() + "  schema Type: " + schema.getType() + "       processedTypes: " + _annotatedType.getType());
                 Annotation[] ctxAnnotations = _annotatedType.getCtxAnnotations();
                 if (Objects.isNull(ctxAnnotations)) {
                     return schema;
                 }
                 for (Annotation ctxAnnotation : ctxAnnotations) {
                     if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
+                        log.info("找到 @{} 注解，当前参数是请求参数!!", ctxAnnotation.annotationType().getSimpleName());
                         isResponseParam = false;
                         break;
                     }
@@ -136,7 +129,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             }
 
             // ----------------------------------------------------------------
-            System.out.println("是否为返回参数：" +  isResponseParam);
+            log.info("是否为返回参数：" +  isResponseParam);
             // 为返回参数的 example 执行对象化
             if (isResponseParam) {
                 Schema items = schema.getItems();
@@ -161,7 +154,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
                         schema.items(items);
                     }
                 }
-                System.out.println("items: " + System.identityHashCode(items));
+                log.info("items: " + System.identityHashCode(items));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -197,7 +190,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
         }
 
         if (arg3Field == null) {
-            System.out.println("未找到 arg$3 字段");
+            log.info("未找到 arg$3 字段");
             return null;
         }
 
@@ -207,7 +200,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
         // 获取字段值并强转为 ModelConverterContextImpl
         Object fieldValue = arg3Field.get(lambdaInstance);
         if (!(fieldValue instanceof ModelConverterContextImpl)) {
-            System.out.println("arg$3 字段类型不是 ModelConverterContextImpl");
+            log.info("arg$3 字段类型不是 ModelConverterContextImpl");
             return null;
         }
 
@@ -224,7 +217,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
         Object fieldValue = processedTypesField.get(context);
 
         if (!(fieldValue instanceof HashSet)) {
-            System.out.println("processedTypes 字段类型不是 HashSet");
+            log.info("processedTypes 字段类型不是 HashSet");
             return null;
         }
 

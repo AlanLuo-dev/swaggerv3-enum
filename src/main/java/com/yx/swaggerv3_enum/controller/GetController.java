@@ -1,7 +1,16 @@
 package com.yx.swaggerv3_enum.controller;
 
+import com.yx.swaggerv3_enum.enums.ColorEnum;
+import com.yx.swaggerv3_enum.request.ColorQuery;
+import com.yx.swaggerv3_enum.response.ResultVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "GET URL 参数")
@@ -9,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api")
 public class GetController {
 
-    //    @Operation(summary = "GET方法 枚举作为Controller方法的 Query参数")
+//    @Operation(summary = "GET方法 枚举作为Controller方法的 Query参数")
 //    @GetMapping("/QueryString")
 //    public ResultVO<ColorEnum> _QueryString(@Parameter(description = "颜色值") @RequestParam ColorEnum color) {
 //        return new ResultVO<>(color);
