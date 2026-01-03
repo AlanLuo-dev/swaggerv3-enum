@@ -1,0 +1,20 @@
+package com.yx.swaggerv3_enum.response;
+
+import com.yx.swaggerv3_enum.enums.ColorEnum;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(description = "返回数据")
+public class ColorVO {
+
+    @Schema(description = "颜色")
+    private ColorEnum color;
+
+    @Schema(description = "用户名")
+    private String username;
+}
