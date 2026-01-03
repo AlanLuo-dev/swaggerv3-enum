@@ -119,8 +119,8 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
                 }
             }
 
-            // 请求标识的数量，如果大于0，则当前schema视为请求参数，否则视为 返回参数，执行对象化操作
-            int requestFlag = 0;
+            // 返回参数标识：true = 当前Schema是返回参数，false = 当前Schema是请求参数
+            boolean isResponseParam = true;
             for  (AnnotatedType _annotatedType : processedTypesFromContext) {
                 System.out.println("schame: " + schema.getDescription() + "  schema Type: " + schema.getType() + "       processedTypes: " + _annotatedType.getType());
                 Annotation[] ctxAnnotations = _annotatedType.getCtxAnnotations();
@@ -129,17 +129,16 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
                 }
                 for (Annotation ctxAnnotation : ctxAnnotations) {
                     if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
-                        requestFlag += 1;
+                        isResponseParam = false;
+                        break;
                     }
                 }
             }
 
             // ----------------------------------------------------------------
-            System.out.println("请求标识注解的数量" +  requestFlag);
+            System.out.println("是否为返回参数：" +  isResponseParam);
             // 为返回参数的 example 执行对象化
-            if (requestFlag == 0) {
-
-                // 已确定是请求参数
+            if (isResponseParam) {
                 Schema items = schema.getItems();
                 if (schemaEnumMap.containsKey(items)) {
                     List<EnumSchema<? extends Serializable, ?>> enumConstants = schemaEnumMap.get(items);
