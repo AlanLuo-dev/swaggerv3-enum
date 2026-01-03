@@ -91,6 +91,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
 
         }
         log.info("————————————————————————————————————————————————————————————————————————————");
+        log.info("schame: " + schema.getDescription() + "  schema Type: " + schema.getType());
         Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
         if (Objects.isNull(jsonUnwrappedHandler)) {
             return schema;
@@ -114,14 +115,14 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             // 返回参数标识：true = 当前Schema是返回参数，false = 当前Schema是请求参数
             boolean isResponseParam = true;
             for  (AnnotatedType _annotatedType : processedTypesFromContext) {
-                log.info("schame: " + schema.getDescription() + "  schema Type: " + schema.getType() + "       processedTypes: " + _annotatedType.getType());
+                log.info("       processedTypes: " + _annotatedType.getType());
                 Annotation[] ctxAnnotations = _annotatedType.getCtxAnnotations();
                 if (Objects.isNull(ctxAnnotations)) {
                     return schema;
                 }
                 for (Annotation ctxAnnotation : ctxAnnotations) {
                     if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
-                        log.info("找到 @{} 注解，当前参数是请求参数!!", ctxAnnotation.annotationType().getSimpleName());
+                        log.info("       找到 @{} 注解，当前参数{} 是请求参数!!", ctxAnnotation.annotationType().getSimpleName(), schema.getName());
                         isResponseParam = false;
                         break;
                     }
