@@ -51,13 +51,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
                 ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
                 HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
                 for (AnnotatedType _annotatedType : processedTypesFromContext) {
-                    Annotation[] ctxAnnotations = _annotatedType.getCtxAnnotations();
-                    if (Objects.isNull(ctxAnnotations)) {
-                        log.info("=> ctxAnnotations 为 null");
-                        return schema;
-                    }
-
-                    for (Annotation ctxAnnotation : ctxAnnotations) {
+                    for (Annotation ctxAnnotation : _annotatedType.getCtxAnnotations()) {
                         if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
                             log.info(" >>> 找到 @{} 注解，当前参数是请求参数!!", ctxAnnotation.annotationType().getSimpleName());
 
