@@ -2,7 +2,7 @@ package com.yx.swaggerv3_enum.config;
 
 
 import com.yx.swaggerv3_enum.config.convert.EnumSchemaConverterFactory;
-import com.yx.swaggerv3_enum.config.core.EnumSchema;
+import com.yx.swaggerv3_enum.config.core.EnumDefinition;
 import com.yx.swaggerv3_enum.config.springdoc.CodeEnumModelConverter;
 import com.yx.swaggerv3_enum.config.springdoc.CodeEnumPropertyCustomizer;
 import com.yx.swaggerv3_enum.config.springdoc.EnumParameterCustomizer;
@@ -31,7 +31,7 @@ public class EnumWebMvcConfiguration implements WebMvcConfigurer {
 
 
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnClass(EnumSchema.class)
+    @ConditionalOnClass(EnumDefinition.class)
     public static class CodeEnumPropertyCustomizerConfiguration implements InitializingBean {
 
         @Bean

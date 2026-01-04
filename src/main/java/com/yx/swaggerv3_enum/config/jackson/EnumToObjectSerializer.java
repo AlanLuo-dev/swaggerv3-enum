@@ -3,7 +3,7 @@ package com.yx.swaggerv3_enum.config.jackson;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.yx.swaggerv3_enum.config.core.EnumSchema;
+import com.yx.swaggerv3_enum.config.core.EnumDefinition;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -11,10 +11,10 @@ import java.io.Serializable;
 /**
  * 枚举序列化器：将 BaseEnum 转为嵌套 JSON 对象
  */
-public class EnumToObjectSerializer<K extends Serializable, T extends Enum<T> & EnumSchema<K, T>> extends JsonSerializer<EnumSchema<K, T>> {
+public class EnumToObjectSerializer<K extends Serializable, T extends Enum<T> & EnumDefinition<K, T>> extends JsonSerializer<EnumDefinition<K, T>> {
 
     @Override
-    public void serialize(EnumSchema<K, T> enumValue, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(EnumDefinition<K, T> enumValue, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
 // 开始序列化对象（生成 { ）
         gen.writeStartObject();
         // 写入 code 字段（值为枚举的 getCode() 结果）
@@ -38,8 +38,8 @@ public class EnumToObjectSerializer<K extends Serializable, T extends Enum<T> & 
      */
     @Override
     @SuppressWarnings("unchecked")
-    public Class<EnumSchema<K, T>> handledType() {
-        return (Class<EnumSchema<K, T>>) (Class<?>) EnumSchema.class;
+    public Class<EnumDefinition<K, T>> handledType() {
+        return (Class<EnumDefinition<K, T>>) (Class<?>) EnumDefinition.class;
     }
 
 }

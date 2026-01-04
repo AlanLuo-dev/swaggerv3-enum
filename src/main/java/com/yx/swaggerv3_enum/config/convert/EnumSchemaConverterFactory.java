@@ -1,6 +1,6 @@
 package com.yx.swaggerv3_enum.config.convert;
 
-import com.yx.swaggerv3_enum.config.core.EnumSchema;
+import com.yx.swaggerv3_enum.config.core.EnumDefinition;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
 import org.springframework.lang.NonNull;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * 枚举转换器工厂：将Serializable类型的枚举值转换为BaseEnum枚举对象
  */
-public class EnumSchemaConverterFactory<R extends Enum<R> & EnumSchema<? extends Serializable, R>>
+public class EnumSchemaConverterFactory<R extends Enum<R> & EnumDefinition<? extends Serializable, R>>
         implements ConverterFactory<String, R> {
 
     @Override
@@ -28,7 +28,7 @@ public class EnumSchemaConverterFactory<R extends Enum<R> & EnumSchema<? extends
     /**
      * 内部转换器：实现具体的“值→枚举”转换
      */
-    private static class BaseEnumConverter<U extends Enum<U> & EnumSchema<? extends Serializable, U>>
+    private static class BaseEnumConverter<U extends Enum<U> & EnumDefinition<? extends Serializable, U>>
             implements Converter<String, U> {
 
         // 目标枚举类型
