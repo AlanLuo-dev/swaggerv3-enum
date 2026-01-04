@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public interface CodeEnumResolver {
+public interface EnumDefResolver {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     default void fillCodeEnumSchema(Schema schema, Class<?> rawClass) {

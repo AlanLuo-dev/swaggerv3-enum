@@ -3,9 +3,9 @@ package com.yx.swaggerv3_enum.config;
 
 import com.yx.swaggerv3_enum.config.convert.EnumDefConverterFactory;
 import com.yx.swaggerv3_enum.config.core.EnumDef;
-import com.yx.swaggerv3_enum.config.springdoc.CodeEnumModelConverter;
-import com.yx.swaggerv3_enum.config.springdoc.CodeEnumPropertyCustomizer;
-import com.yx.swaggerv3_enum.config.springdoc.EnumParameterCustomizer;
+import com.yx.swaggerv3_enum.config.springdoc.EnumDefModelConverter;
+import com.yx.swaggerv3_enum.config.springdoc.EnumDefPropertyCustomizer;
+import com.yx.swaggerv3_enum.config.springdoc.EnumDefParameterCustomizer;
 import io.swagger.v3.core.jackson.ModelResolver;
 import org.springdoc.core.customizers.ParameterCustomizer;
 import org.springdoc.core.customizers.PropertyCustomizer;
@@ -36,17 +36,17 @@ public class EnumWebMvcConfiguration implements WebMvcConfigurer {
 
         @Bean
         public PropertyCustomizer codeEnumPropertyCustomizer() {
-            return new CodeEnumPropertyCustomizer();
+            return new EnumDefPropertyCustomizer();
         }
 
         @Bean
         public ParameterCustomizer enumParameterCustomizer() {
-            return new EnumParameterCustomizer();
+            return new EnumDefParameterCustomizer();
         }
 
         @Bean
         public ModelResolver codeEnumModelResolver() {
-            return new CodeEnumModelConverter();
+            return new EnumDefModelConverter();
         }
 
         @Override

@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
+public class EnumDefPropertyCustomizer implements PropertyCustomizer {
 
     @Override
     @SuppressWarnings("rawtypes")

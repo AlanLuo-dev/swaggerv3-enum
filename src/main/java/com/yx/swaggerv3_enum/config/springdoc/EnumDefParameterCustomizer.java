@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * 为简单参数（query/path/header）中的 CodeEnum 添加 enum 列表 & 描述
  */
-public class EnumParameterCustomizer implements ParameterCustomizer {
+public class EnumDefParameterCustomizer implements ParameterCustomizer {
 
     @Override
     public Parameter customize(Parameter parameterModel, MethodParameter methodParameter) {
