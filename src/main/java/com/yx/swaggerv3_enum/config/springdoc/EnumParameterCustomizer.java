@@ -1,6 +1,6 @@
 package com.yx.swaggerv3_enum.config.springdoc;
 
-import com.yx.swaggerv3_enum.config.core.EnumDefinition;
+import com.yx.swaggerv3_enum.config.core.EnumDef;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import org.springdoc.core.customizers.ParameterCustomizer;
@@ -38,7 +38,7 @@ public class EnumParameterCustomizer implements ParameterCustomizer {
                 parameterModel.setSchema(schema);
             }
 
-            List<EnumDefinition<? extends Serializable,?>> enumConstants = List.of((EnumDefinition<? extends Serializable,?>[]) rawClass.getEnumConstants());
+            List<EnumDef<? extends Serializable,?>> enumConstants = List.of((EnumDef<? extends Serializable,?>[]) rawClass.getEnumConstants());
 
             String enumValues = enumConstants.stream()
                     .map(enumSchema -> enumSchema.getValue() + " = " + enumSchema.getLabel())
@@ -46,7 +46,7 @@ public class EnumParameterCustomizer implements ParameterCustomizer {
             parameterModel.setDescription(parameterModel.getDescription() + enumValues);
 
             List<String> enumValuesList = new ArrayList<>(enumConstants.size());
-            for (EnumDefinition<? extends Serializable,?> item : enumConstants) {
+            for (EnumDef<? extends Serializable,?> item : enumConstants) {
                 enumValuesList.add(String.valueOf(item.getValue()));
             }
             schema.setEnum(enumValuesList);
@@ -62,6 +62,6 @@ public class EnumParameterCustomizer implements ParameterCustomizer {
             return false;
         }
         // 直接判断 rawClass 是否实现了 EnumSchema 接口（更直接、更可靠）
-        return EnumDefinition.class.isAssignableFrom(rawClass);
+        return EnumDef.class.isAssignableFrom(rawClass);
     }
 }

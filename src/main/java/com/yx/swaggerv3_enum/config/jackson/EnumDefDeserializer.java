@@ -4,18 +4,18 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.yx.swaggerv3_enum.config.core.EnumDefinition;
+import com.yx.swaggerv3_enum.config.core.EnumDef;
 
 import java.io.IOException;
 import java.util.Objects;
 
 
-public class EnumDefinitionDeserializer
+public class EnumDefDeserializer
         extends JsonDeserializer<Enum<?>> {
 
     private final Class<? extends Enum<?>> enumType;
 
-    public EnumDefinitionDeserializer(Class<? extends Enum<?>> enumType) {
+    public EnumDefDeserializer(Class<? extends Enum<?>> enumType) {
         this.enumType = enumType;
     }
 
@@ -39,7 +39,7 @@ public class EnumDefinitionDeserializer
         }
 
         for (Enum<?> e : enumType.getEnumConstants()) {
-            EnumDefinition schema = (EnumDefinition) e;
+            EnumDef schema = (EnumDef) e;
             if (Objects.equals(schema.getValue(), input)) {
                 return e;
             }

@@ -1,8 +1,8 @@
 package com.yx.swaggerv3_enum.config;
 
 
-import com.yx.swaggerv3_enum.config.convert.EnumDefinitionConverterFactory;
-import com.yx.swaggerv3_enum.config.core.EnumDefinition;
+import com.yx.swaggerv3_enum.config.convert.EnumDefConverterFactory;
+import com.yx.swaggerv3_enum.config.core.EnumDef;
 import com.yx.swaggerv3_enum.config.springdoc.CodeEnumModelConverter;
 import com.yx.swaggerv3_enum.config.springdoc.CodeEnumPropertyCustomizer;
 import com.yx.swaggerv3_enum.config.springdoc.EnumParameterCustomizer;
@@ -20,8 +20,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class EnumWebMvcConfiguration implements WebMvcConfigurer {
 
     @Bean
-    public EnumDefinitionConverterFactory<?> booleanToBaseEnumConverterFactory() { // 枚举转换器工厂
-        return new EnumDefinitionConverterFactory<>();  // 枚举转换器工厂: 将Serializable类型的枚举值转换为BaseEnum枚举对象
+    public EnumDefConverterFactory<?> booleanToBaseEnumConverterFactory() { // 枚举转换器工厂
+        return new EnumDefConverterFactory<>();  // 枚举转换器工厂: 将Serializable类型的枚举值转换为BaseEnum枚举对象
     }
 
     @Override
@@ -31,7 +31,7 @@ public class EnumWebMvcConfiguration implements WebMvcConfigurer {
 
 
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnClass(EnumDefinition.class)
+    @ConditionalOnClass(EnumDef.class)
     public static class CodeEnumPropertyCustomizerConfiguration implements InitializingBean {
 
         @Bean

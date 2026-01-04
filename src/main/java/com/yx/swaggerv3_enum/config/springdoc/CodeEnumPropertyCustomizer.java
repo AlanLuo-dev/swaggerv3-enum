@@ -1,7 +1,7 @@
 package com.yx.swaggerv3_enum.config.springdoc;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.yx.swaggerv3_enum.config.core.EnumDefinition;
+import com.yx.swaggerv3_enum.config.core.EnumDef;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverterContextImpl;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,15 +33,15 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
         log.info("————————————————————————————————————————————————————————————————————————————");
         log.info("schame: " + schema.getDescription() + "  schema Type: " + schema.getType());
         if (annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
-            List<EnumDefinition<? extends Serializable, ?>> enumConstants =
-                    List.of((EnumDefinition<? extends Serializable, ?>[])type.getRawClass().getEnumConstants());
+            List<EnumDef<? extends Serializable, ?>> enumConstants =
+                    List.of((EnumDef<? extends Serializable, ?>[])type.getRawClass().getEnumConstants());
 
             String description = enumConstants.stream()
                     .map(enumSchema -> enumSchema.getValue() + " = " + enumSchema.getLabel())
                     .collect(Collectors.joining("，", "<b>（", "）</b>"));
-            schema.setEnum(enumConstants.stream().map(EnumDefinition::getValue).map(Object::toString).toList());
+            schema.setEnum(enumConstants.stream().map(EnumDef::getValue).map(Object::toString).toList());
             schema.setDescription(schema.getDescription() + description);
-            schema.setExample(enumConstants.stream().map(EnumDefinition::getValue).map(Object::toString).findFirst().orElse(null));
+            schema.setExample(enumConstants.stream().map(EnumDef::getValue).map(Object::toString).findFirst().orElse(null));
 
             Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
             if (Objects.isNull(jsonUnwrappedHandler)) {
@@ -69,7 +69,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
                 throw new RuntimeException(e);
             }
 
-            EnumDefinition<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
+            EnumDef<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
             if (Objects.nonNull(enumConstant)) {
                 ObjectSchema enumObjectSchema = new ObjectSchema();
 
@@ -114,15 +114,15 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
         try {
             ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
             HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
-            Map<Schema, List<EnumDefinition<? extends Serializable, ?>>> schemaEnumMap = new HashMap<>();
+            Map<Schema, List<EnumDef<? extends Serializable, ?>>> schemaEnumMap = new HashMap<>();
 
             // 收集 枚举类型的字段的 schema 和 枚举的对应关系，组成HashMap
             for  (AnnotatedType _annotatedType : processedTypesFromContext) {
                 if (_annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
                     Schema resolve = modelConverterContext.resolve(_annotatedType);
 
-                    List<EnumDefinition<? extends Serializable, ?>> enumConstants =
-                            List.of((EnumDefinition<? extends Serializable, ?>[]) type.getRawClass().getEnumConstants());
+                    List<EnumDef<? extends Serializable, ?>> enumConstants =
+                            List.of((EnumDef<? extends Serializable, ?>[]) type.getRawClass().getEnumConstants());
                     schemaEnumMap.put(resolve, enumConstants);
                 }
             }
@@ -150,8 +150,8 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             if (isResponseParam) {
                 Schema items = schema.getItems();
                 if (schemaEnumMap.containsKey(items)) {
-                    List<EnumDefinition<? extends Serializable, ?>> enumConstants = schemaEnumMap.get(items);
-                    EnumDefinition<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
+                    List<EnumDef<? extends Serializable, ?>> enumConstants = schemaEnumMap.get(items);
+                    EnumDef<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
                     if (Objects.nonNull(enumConstant)) {
                         items = new ObjectSchema();
 
@@ -184,7 +184,7 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             return false;
         }
         // 直接判断 rawClass 是否实现了 EnumSchema 接口(更直接、更可靠)
-        return EnumDefinition.class.isAssignableFrom(rawClass);
+        return EnumDef.class.isAssignableFrom(rawClass);
     }
 
     /**
