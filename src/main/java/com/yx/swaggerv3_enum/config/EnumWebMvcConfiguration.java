@@ -1,7 +1,7 @@
 package com.yx.swaggerv3_enum.config;
 
 
-import com.yx.swaggerv3_enum.config.convert.EnumSchemaConverterFactory;
+import com.yx.swaggerv3_enum.config.convert.EnumDefinitionConverterFactory;
 import com.yx.swaggerv3_enum.config.core.EnumDefinition;
 import com.yx.swaggerv3_enum.config.springdoc.CodeEnumModelConverter;
 import com.yx.swaggerv3_enum.config.springdoc.CodeEnumPropertyCustomizer;
@@ -20,8 +20,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class EnumWebMvcConfiguration implements WebMvcConfigurer {
 
     @Bean
-    public EnumSchemaConverterFactory<?> booleanToBaseEnumConverterFactory() { // 枚举转换器工厂
-        return new EnumSchemaConverterFactory<>();  // 枚举转换器工厂: 将Serializable类型的枚举值转换为BaseEnum枚举对象
+    public EnumDefinitionConverterFactory<?> booleanToBaseEnumConverterFactory() { // 枚举转换器工厂
+        return new EnumDefinitionConverterFactory<>();  // 枚举转换器工厂: 将Serializable类型的枚举值转换为BaseEnum枚举对象
     }
 
     @Override
