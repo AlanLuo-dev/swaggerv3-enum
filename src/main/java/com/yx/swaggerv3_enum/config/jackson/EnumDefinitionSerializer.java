@@ -11,7 +11,7 @@ import java.io.Serializable;
 /**
  * 枚举序列化器：将 BaseEnum 转为嵌套 JSON 对象
  */
-public class EnumToObjectSerializer<K extends Serializable, T extends Enum<T> & EnumDefinition<K, T>> extends JsonSerializer<EnumDefinition<K, T>> {
+public class EnumDefinitionSerializer<K extends Serializable, T extends Enum<T> & EnumDefinition<K, T>> extends JsonSerializer<EnumDefinition<K, T>> {
 
     @Override
     public void serialize(EnumDefinition<K, T> enumValue, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {

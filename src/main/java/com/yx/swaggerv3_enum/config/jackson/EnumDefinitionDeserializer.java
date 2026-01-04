@@ -10,12 +10,12 @@ import java.io.IOException;
 import java.util.Objects;
 
 
-public class EnumSchemaDeserializer
+public class EnumDefinitionDeserializer
         extends JsonDeserializer<Enum<?>> {
 
     private final Class<? extends Enum<?>> enumType;
 
-    public EnumSchemaDeserializer(Class<? extends Enum<?>> enumType) {
+    public EnumDefinitionDeserializer(Class<? extends Enum<?>> enumType) {
         this.enumType = enumType;
     }
 
