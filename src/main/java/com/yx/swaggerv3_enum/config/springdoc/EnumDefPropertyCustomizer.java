@@ -91,7 +91,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
             }
 
         }
-        
+
         // ==================== 新增：处理数组类型字段，合并items的枚举描述到顶层 ===============
         if (schema instanceof ArraySchema) {
             Schema itemsSchema = schema.getItems();
@@ -106,7 +106,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
             }
         }
 
-        
+
         Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
         if (Objects.isNull(jsonUnwrappedHandler)) {
             return schema;
@@ -129,17 +129,14 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
 
             // 返回参数标识：true = 当前Schema是返回参数，false = 当前Schema是请求参数
             boolean isResponseParam = true;
-            for  (AnnotatedType _annotatedType : processedTypesFromContext) {
+            outerLoop:// 定义外层循环标签
+            for (AnnotatedType _annotatedType : processedTypesFromContext) {
                 log.info("       processedTypes: " + _annotatedType.getType());
-                Annotation[] ctxAnnotations = _annotatedType.getCtxAnnotations();
-                if (Objects.isNull(ctxAnnotations)) {
-                    return schema;
-                }
-                for (Annotation ctxAnnotation : ctxAnnotations) {
+                for (Annotation ctxAnnotation : _annotatedType.getCtxAnnotations()) {
                     if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
                         log.info("       找到 @{} 注解，当前参数{} 是请求参数!!", ctxAnnotation.annotationType().getSimpleName(), schema.getName());
                         isResponseParam = false;
-                        break;
+                        break outerLoop; // 跳出外层循环
                     }
                 }
             }
