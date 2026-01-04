@@ -5,6 +5,7 @@ import com.yx.swaggerv3_enum.config.core.EnumSchema;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverterContextImpl;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
@@ -30,7 +31,8 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
     @Override
     @SuppressWarnings("rawtypes")
     public Schema customize(Schema schema, AnnotatedType annotatedType) {
-
+        log.info("————————————————————————————————————————————————————————————————————————————");
+        log.info("schame: " + schema.getDescription() + "  schema Type: " + schema.getType());
         if (annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
             List<EnumSchema<? extends Serializable, ?>> enumConstants =
                     List.of((EnumSchema<? extends Serializable, ?>[])type.getRawClass().getEnumConstants());
@@ -90,8 +92,22 @@ public class CodeEnumPropertyCustomizer implements PropertyCustomizer {
             }
 
         }
-        log.info("————————————————————————————————————————————————————————————————————————————");
-        log.info("schame: " + schema.getDescription() + "  schema Type: " + schema.getType());
+        
+        // ==================== 新增：处理数组类型字段，合并items的枚举描述到顶层 ===============
+        if (schema instanceof ArraySchema) {
+            Schema itemsSchema = schema.getItems();
+            // 检查 items 是否是枚举类型且包含拼接的枚举描述
+            if (itemsSchema != null && itemsSchema.getDescription() != null
+                    && itemsSchema.getDescription().contains("<b>（")
+                    && schema.getDescription() != null ) {
+                // 将items的枚举描述合并到数组字段的顶层description
+                String enumDesc = itemsSchema.getDescription().substring(
+                        itemsSchema.getDescription().indexOf("<b>（"));
+                schema.setDescription(schema.getDescription() + enumDesc);
+            }
+        }
+
+        
         Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
         if (Objects.isNull(jsonUnwrappedHandler)) {
             return schema;
