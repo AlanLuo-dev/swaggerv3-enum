@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.yx.swaggerv3_enum.config.core.EnumDef;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverterContextImpl;
+import io.swagger.v3.core.util.PrimitiveType;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
@@ -16,11 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,10 +36,18 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
             String description = enumConstants.stream()
                     .map(enumSchema -> enumSchema.getValue() + " = " + enumSchema.getLabel())
                     .collect(Collectors.joining("，", "<b>（", "）</b>"));
-            schema.setEnum(enumConstants.stream().map(EnumDef::getValue).map(Object::toString).toList());
-            schema.setDescription(schema.getDescription() + description);
-            schema.setExample(enumConstants.stream().map(EnumDef::getValue).map(Object::toString).findFirst().orElse(null));
+            String existDescription = schema.getDescription();
+            Optional<? extends Serializable> optional = enumConstants.stream().map(EnumDef::getValue).findFirst();
+            if (optional.isPresent()) {
+                Serializable serializable = optional.get();
+                schema = PrimitiveType.createProperty(serializable.getClass());
+                schema.setExample(serializable);
+            }
+            
+            schema.setEnum(enumConstants.stream().map(EnumDef::getValue).toList());
+            schema.setDescription(existDescription + description);
 
+            
             Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
             if (Objects.isNull(jsonUnwrappedHandler)) {
                 return schema;
@@ -65,28 +70,14 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
 
             EnumDef<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
             if (Objects.nonNull(enumConstant)) {
-                ObjectSchema enumObjectSchema = new ObjectSchema();
+                schema = createObjectSchema(enumConstant);
 
-                Schema valueSchema = new StringSchema();
-                valueSchema.setExample(enumConstant.getValue().toString()); // 示例值
-                enumObjectSchema.addProperty("value", valueSchema); // 加入结构化对象
-
-                // 3. 添加label字段(构建字段Schema并设置示例)
-                Schema labelSchema = new StringSchema();
-                labelSchema.setExample(enumConstant.getLabel()); // 示例值
-                enumObjectSchema.addProperty("label", labelSchema); // 加入结构化对象
-
-                // 4. 复制原有Schema的基础设施(描述、是否必填等，保证兼容性)
-                enumObjectSchema.setRequired(schema.getRequired());
-                enumObjectSchema.setNullable(schema.getNullable());
-                enumObjectSchema.setDescription(schema.getDescription());
-
-                return enumObjectSchema;
+                return schema;
             }
 
         }
 
-        // ==================== 新增：处理数组类型字段，合并items的枚举描述到顶层 ===============
+        // ~ START  ======表单场景：处理数组类型字段，合并items的枚举描述到顶层 ===============
         if (schema instanceof ArraySchema) {
             Schema itemsSchema = schema.getItems();
             // 检查 items 是否是枚举类型且包含拼接的枚举描述
@@ -99,8 +90,9 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
                 schema.setDescription(schema.getDescription() + enumDesc);
             }
         }
+        // ~ END    ======表单场景：处理数组类型字段，合并items的枚举描述到顶层 ===============
 
-
+        // ~ START ========= 为返回参数的枚举的 Schema 实现对象化（即转为 ObjectSchema） ========================================
         Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
         if (Objects.isNull(jsonUnwrappedHandler)) {
             return schema;
@@ -142,22 +134,9 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
                 Schema items = schema.getItems();
                 if (schemaEnumMap.containsKey(items)) {
                     List<EnumDef<? extends Serializable, ?>> enumConstants = schemaEnumMap.get(items);
-                    EnumDef<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
-                    if (Objects.nonNull(enumConstant)) {
-                        items = new ObjectSchema();
-
-                        Schema valueSchema = new StringSchema();
-                        valueSchema.setExample(enumConstant.getValue().toString()); // 示例值
-                        items.addProperty("value", valueSchema); // 加入结构化对象
-
-                        Schema labelSchema = new StringSchema();
-                        labelSchema.setExample(enumConstant.getLabel());
-                        items.addProperty("label", labelSchema);
-
-                        items.setRequired(schema.getRequired());
-                        items.setNullable(schema.getNullable());
-                        items.setDescription(schema.getDescription());
-
+                    Optional<EnumDef<? extends Serializable, ?>> optional = enumConstants.stream().findFirst();
+                    if (optional.isPresent()) {
+                        items = createObjectSchema(optional.get());
                         schema.items(items);
                     }
                 }
@@ -166,8 +145,33 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        // ~ END ========= 为返回参数的枚举的 Schema 实现对象化（即转为 ObjectSchema） ========================================
 
         return schema;
+    }
+
+    /**
+     * 创建 对象化的 Schema
+     *
+     * @param enumConstant 枚举
+     * @return ObjectSchema 对象
+     */
+    private Schema createObjectSchema(EnumDef<? extends Serializable, ?> enumConstant) {
+        Schema items = new ObjectSchema();
+
+        Schema valueSchema = PrimitiveType.createProperty(enumConstant.getValue().getClass());
+        valueSchema.setExample(enumConstant.getValue());
+        items.addProperty("value", valueSchema);
+
+        Schema labelSchema = new StringSchema();
+        labelSchema.setExample(enumConstant.getLabel());
+        items.addProperty("label", labelSchema);
+
+        // items.setRequired(schema.getRequired());
+        // items.setNullable(schema.getNullable());
+        // items.setDescription(schema.getDescription());
+
+        return items;
     }
 
     private boolean isCodeEnum(Class<?> rawClass) {
