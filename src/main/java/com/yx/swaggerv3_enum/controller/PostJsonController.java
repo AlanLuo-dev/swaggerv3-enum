@@ -3,6 +3,7 @@ package com.yx.swaggerv3_enum.controller;
 import com.yx.swaggerv3_enum.enums.ColorEnum;
 import com.yx.swaggerv3_enum.request.ColorBatchDTO;
 import com.yx.swaggerv3_enum.request.ColorDTO;
+import com.yx.swaggerv3_enum.response.ColorBatchVO;
 import com.yx.swaggerv3_enum.response.ColorVO;
 import com.yx.swaggerv3_enum.response.ResultVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,8 +57,8 @@ public class PostJsonController {
 
     @Operation(summary = "POST方法提交JSON (枚举数组 作为对象参数的属性)")
     @PostMapping("/RequestBody/EnumArray_As_Parameter_In_Object")
-    public ResultVO<List<ColorEnum>> _RequestBody_EnumArray_As_Parameter_In_Object(@RequestBody ColorBatchDTO dto) {
-        return new ResultVO<>(dto.getColors());
+    public ResultVO<ColorBatchVO> _RequestBody_EnumArray_As_Parameter_In_Object(@RequestBody ColorBatchDTO dto) {
+        return new ResultVO<>(new ColorBatchVO(dto.getColors(), dto.getVideoResolutions()));
     }
 
     //    @Operation(summary = "表单方式提交颜色")
