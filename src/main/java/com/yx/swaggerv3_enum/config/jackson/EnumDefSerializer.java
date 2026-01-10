@@ -15,14 +15,10 @@ public class EnumDefSerializer<K extends Serializable, T extends Enum<T> & EnumD
 
     @Override
     public void serialize(EnumDef<K, T> enumValue, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
-// 开始序列化对象（生成 { ）
-        gen.writeStartObject();
-        // 写入 code 字段（值为枚举的 getCode() 结果）
-        gen.writeObjectField("value", enumValue.getValue());
-        // 写入 desc 字段（值为枚举的 getDesc() 结果）
-        gen.writeStringField("label", enumValue.getLabel());
-        // 结束序列化对象（生成 } ）
-        gen.writeEndObject();
+        gen.writeStartObject();                                           // 开始序列化对象（生成 { ）
+        gen.writeObjectField("value", enumValue.getValue());    // 写入 code 字段（值为枚举的 getCode() 结果）
+        gen.writeStringField("label", enumValue.getLabel());    // 写入 desc 字段（值为枚举的 getDesc() 结果）
+        gen.writeEndObject();                                             // 结束序列化对象（生成 } ）
     }
 
     /**

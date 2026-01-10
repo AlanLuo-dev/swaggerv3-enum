@@ -7,11 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.yx.swaggerv3_enum.config.core.EnumDef;
 
 import java.io.IOException;
-import java.util.Objects;
 
 
-public class EnumDefDeserializer
-        extends JsonDeserializer<Enum<?>> {
+public class EnumDefDeserializer extends JsonDeserializer<Enum<?>> {
 
     private final Class<? extends Enum<?>> enumType;
 
@@ -25,26 +23,49 @@ public class EnumDefDeserializer
             throws IOException {
 
         JsonNode node = p.getCodec().readTree(p);
-        String input;
+        Object inputValue;
 
-        // {"value": "red"}
+
         if (node.isObject() && node.has("value")) {
-            input = node.get("value").asText();
+            JsonNode valueNode = node.get("value");
+            inputValue = readNodeValue(valueNode);
         }
-        // "red"
+        // 480 / "red"
         else if (node.isValueNode()) {
-            input = node.asText();
+            inputValue = readNodeValue(node);
         } else {
             return null;
         }
 
         for (Enum<?> e : enumType.getEnumConstants()) {
             EnumDef schema = (EnumDef) e;
-            if (Objects.equals(schema.getValue(), input)) {
+            Object enumValue = schema.getValue();
+
+            if (enumValue != null
+                    && enumValue.toString().equals(inputValue.toString())) {
                 return e;
             }
         }
 
         return null;
+    }
+
+    private Object readNodeValue(JsonNode node) {
+        if (node.isInt()) {
+            return node.intValue();
+        }
+        if (node.isLong()) {
+            return node.longValue();
+        }
+        if (node.isTextual()) {
+            return node.textValue();
+        }
+        if (node.isBoolean()) {
+            return node.booleanValue();
+        }
+        if (node.isNumber()) {
+            return node.numberValue();
+        }
+        return node.asText();
     }
 }
