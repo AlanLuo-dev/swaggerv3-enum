@@ -1,6 +1,7 @@
 package com.yx.swaggerv3_enum.request;
 
 import com.yx.swaggerv3_enum.enums.ColorEnum;
+import com.yx.swaggerv3_enum.enums.ContactPhoneEnum;
 import com.yx.swaggerv3_enum.enums.VideoResolutionEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -18,4 +19,7 @@ public class ColorBatchDTO {
 
     @Schema(description = "（入参）视频分辨率列表")
     private List<VideoResolutionEnum> videoResolutions;
+
+    @Schema(description = "（入参）联系人手机号码列表（Long类型）")
+    private List<ContactPhoneEnum> contactPhones;
 }

@@ -21,14 +21,13 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Slf4j
 public class EnumDefPropertyCustomizer implements PropertyCustomizer {
 
     @Override
     @SuppressWarnings("rawtypes")
     public Schema customize(Schema schema, AnnotatedType annotatedType) {
-        log.info("————————————————————————————————————————————————————————————————————————————");
-        log.info("schame: " + schema.getDescription() + "  schema Type: " + schema.getType());
+        System.out.println("————————————————————————————————————————————————————————————————————————————");
+        System.out.println("schame: " + schema.getDescription() + "  schema Type: " + schema.getType());
         if (annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
             List<EnumDef<? extends Serializable, ?>> enumConstants =
                     List.of((EnumDef<? extends Serializable, ?>[])type.getRawClass().getEnumConstants());
@@ -43,11 +42,11 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
                 schema = PrimitiveType.createProperty(serializable.getClass());
                 schema.setExample(serializable);
             }
-            
+
             schema.setEnum(enumConstants.stream().map(EnumDef::getValue).toList());
             schema.setDescription(existDescription + description);
 
-            
+
             Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
             if (Objects.isNull(jsonUnwrappedHandler)) {
                 return schema;
@@ -58,7 +57,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
                 for (AnnotatedType _annotatedType : processedTypesFromContext) {
                     for (Annotation ctxAnnotation : _annotatedType.getCtxAnnotations()) {
                         if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
-                            log.info(" >>> 找到 @{} 注解，当前参数是请求参数!!", ctxAnnotation.annotationType().getSimpleName());
+                            System.out.println(" >>> 找到 @" + ctxAnnotation.annotationType().getSimpleName() + " 注解，当前参数是请求参数!!");
 
                             return schema;
                         }
@@ -117,10 +116,10 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
             boolean isResponseParam = true;
             outerLoop:// 定义外层循环标签
             for (AnnotatedType _annotatedType : processedTypesFromContext) {
-                log.info("       processedTypes: " + _annotatedType.getType());
+                System.out.println("       processedTypes: " + _annotatedType.getType());
                 for (Annotation ctxAnnotation : _annotatedType.getCtxAnnotations()) {
                     if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
-                        log.info("       找到 @{} 注解，当前参数{} 是请求参数!!", ctxAnnotation.annotationType().getSimpleName(), schema.getName());
+                        System.out.println("       找到 @" + ctxAnnotation.annotationType().getSimpleName() + " 注解，当前参数" + schema.getName() + " 是请求参数!!");
                         isResponseParam = false;
                         break outerLoop; // 跳出外层循环
                     }
@@ -128,7 +127,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
             }
 
             // ----------------------------------------------------------------
-            log.info("是否为返回参数：" +  isResponseParam);
+            System.out.println("是否为返回参数：" +  isResponseParam);
             // 为返回参数的 example 执行对象化
             if (isResponseParam) {
                 Schema items = schema.getItems();
@@ -140,7 +139,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
                         schema.items(items);
                     }
                 }
-                log.info("items: " + System.identityHashCode(items));
+                System.out.println("items: " + System.identityHashCode(items));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -201,7 +200,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
         }
 
         if (arg3Field == null) {
-            log.info("未找到 arg$3 字段");
+            System.out.println("未找到 arg$3 字段");
             return null;
         }
 
@@ -211,7 +210,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
         // 获取字段值并强转为 ModelConverterContextImpl
         Object fieldValue = arg3Field.get(lambdaInstance);
         if (!(fieldValue instanceof ModelConverterContextImpl)) {
-            log.info("arg$3 字段类型不是 ModelConverterContextImpl");
+            System.out.println("arg$3 字段类型不是 ModelConverterContextImpl");
             return null;
         }
 
@@ -228,7 +227,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
         Object fieldValue = processedTypesField.get(context);
 
         if (!(fieldValue instanceof HashSet)) {
-            log.info("processedTypes 字段类型不是 HashSet");
+            System.out.println("processedTypes 字段类型不是 HashSet");
             return null;
         }
 
