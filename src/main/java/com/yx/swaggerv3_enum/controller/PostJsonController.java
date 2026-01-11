@@ -1,6 +1,8 @@
 package com.yx.swaggerv3_enum.controller;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.yx.swaggerv3_enum.enums.ColorEnum;
 import com.yx.swaggerv3_enum.request.ColorBatchDTO;
 import com.yx.swaggerv3_enum.request.ColorDTO;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "Post Json入参")
@@ -23,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostJsonController {
 
-    private final ObjectMapper mapper;
+    private final ObjectMapper objectMapper;
 
 
 //
@@ -63,6 +66,33 @@ public class PostJsonController {
     @Operation(summary = "POST方法提交JSON (枚举数组 作为对象参数的属性)")
     @PostMapping("/RequestBody/EnumArray_As_Parameter_In_Object")
     public ResultVO<ColorBatchVO> _RequestBody_EnumArray_As_Parameter_In_Object(@RequestBody ColorBatchDTO dto) {
+        objectMapper.getRegisteredModuleIds()
+                .forEach(System.out::println);
+
+        System.out.println("WRITE_ENUMS_USING_TO_STRING: " + objectMapper.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING));
+        System.out.println("USE_BIG_DECIMAL_FOR_FLOATS: " + objectMapper.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
+        System.out.println("FAIL_ON_UNKNOWN_PROPERTIES: " + objectMapper.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+
+
+
+        try {
+
+            LocalDateTime now = LocalDateTime.of(2026, 1, 11, 15, 30, 45);
+            String json = objectMapper.writeValueAsString(now);
+            System.out.println(json);  // 应该是 "2026-01-11 15:30:45"
+
+            String str = "\"2026-01-11 15:30:45\"";
+            LocalDateTime dt = objectMapper.readValue(str, LocalDateTime.class);
+            System.out.println(dt); // 应该解析成 LocalDateTime
+
+            String value = "\"red\"";
+            ColorEnum color = objectMapper.readValue(value, ColorEnum.class);
+            System.out.println(color); // RED
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         return new ResultVO<>(new ColorBatchVO(dto.getTaxRates(), dto.getColors(), dto.getVideoResolutions(), dto.getContactPhones()));
     }
 
