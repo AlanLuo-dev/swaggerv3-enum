@@ -7,50 +7,48 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.yx.swaggerv3_enum.config.core.EnumDef;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.Objects;
 
 
-public class EnumDefDeserializer extends JsonDeserializer<Enum<?>> {
+public class EnumDefDeserializer<R extends Enum<R> & EnumDef<? extends Serializable, R>> extends JsonDeserializer<R> {
 
-    private final Class<? extends Enum<?>> enumType;
+    private final Class<R> enumType;
 
-    public EnumDefDeserializer(Class<? extends Enum<?>> enumType) {
+    public EnumDefDeserializer(Class<R> enumType) {
         this.enumType = enumType;
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public Enum<?> deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
-
+    public R deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode node = p.getCodec().readTree(p);
-        Object inputValue;
-
-
+        Serializable inputValue;
         if (node.isObject() && node.has("value")) {
             JsonNode valueNode = node.get("value");
             inputValue = readNodeValue(valueNode);
-        }
-        // 480 / "red"
-        else if (node.isValueNode()) {
+        } else if (node.isValueNode()) {
             inputValue = readNodeValue(node);
         } else {
             return null;
         }
 
-        for (Enum<?> e : enumType.getEnumConstants()) {
-            EnumDef schema = (EnumDef) e;
-            Object enumValue = schema.getValue();
-
-            if (enumValue != null
-                    && enumValue.toString().equals(inputValue.toString())) {
+        for (R e : enumType.getEnumConstants()) {
+            if (Objects.equals(e.getValue(), inputValue)) {
                 return e;
             }
         }
 
+        // 建议抛异常，而不是 silent null
+//        throw ctxt.weirdStringException(
+//                String.valueOf(inputValue),
+//                enumType,
+//                "Unknown enum value for " + enumType.getSimpleName()
+//        );
+
         return null;
     }
 
-    private Object readNodeValue(JsonNode node) {
+    private Serializable readNodeValue(JsonNode node) {
         if (node.isInt()) {
             return node.intValue();
         }

@@ -19,9 +19,7 @@ public class EnumDefDeserializerModifier extends BeanDeserializerModifier {
         Class<?> rawClass = type.getRawClass();
 
         if (rawClass.isEnum() && EnumDef.class.isAssignableFrom(rawClass)) {
-            return new EnumDefDeserializer(
-                    (Class<? extends Enum<?>>) rawClass
-            );
+            return new EnumDefDeserializer<>((Class) rawClass);
         }
 
         return deserializer;
