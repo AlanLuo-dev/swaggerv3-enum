@@ -1,5 +1,6 @@
 package com.yx.swaggerv3_enum.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yx.swaggerv3_enum.enums.ColorEnum;
 import com.yx.swaggerv3_enum.request.ColorBatchDTO;
 import com.yx.swaggerv3_enum.request.ColorDTO;
@@ -8,6 +9,7 @@ import com.yx.swaggerv3_enum.response.ColorVO;
 import com.yx.swaggerv3_enum.response.ResultVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +20,10 @@ import java.util.List;
 @Tag(name = "Post Json入参")
 @RestController
 @RequestMapping(value = "/api")
+@RequiredArgsConstructor
 public class PostJsonController {
+
+    private final ObjectMapper mapper;
 
 
 //
@@ -58,7 +63,7 @@ public class PostJsonController {
     @Operation(summary = "POST方法提交JSON (枚举数组 作为对象参数的属性)")
     @PostMapping("/RequestBody/EnumArray_As_Parameter_In_Object")
     public ResultVO<ColorBatchVO> _RequestBody_EnumArray_As_Parameter_In_Object(@RequestBody ColorBatchDTO dto) {
-        return new ResultVO<>(new ColorBatchVO(dto.getColors(), dto.getVideoResolutions(), dto.getContactPhones()));
+        return new ResultVO<>(new ColorBatchVO(dto.getTaxRates(), dto.getColors(), dto.getVideoResolutions(), dto.getContactPhones()));
     }
 
     //    @Operation(summary = "表单方式提交颜色")

@@ -8,6 +8,7 @@ import com.yx.swaggerv3_enum.config.core.EnumDef;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 
@@ -33,7 +34,14 @@ public class EnumDefDeserializer<R extends Enum<R> & EnumDef<? extends Serializa
         }
 
         for (R e : enumType.getEnumConstants()) {
-            if (Objects.equals(e.getValue(), inputValue)) {
+            final Serializable enumValue = e.getValue();
+            if (enumValue instanceof BigDecimal && inputValue instanceof Number) {
+                if (((BigDecimal) enumValue).compareTo(new BigDecimal(inputValue.toString())) == 0){
+                    return e;
+                }
+            }
+
+            if (Objects.equals(enumValue, inputValue)) {
                 return e;
             }
         }
@@ -60,6 +68,9 @@ public class EnumDefDeserializer<R extends Enum<R> & EnumDef<? extends Serializa
         }
         if (node.isBoolean()) {
             return node.booleanValue();
+        }
+        if (node.isBigDecimal()) {
+            return node.decimalValue();
         }
         if (node.isNumber()) {
             return node.numberValue();

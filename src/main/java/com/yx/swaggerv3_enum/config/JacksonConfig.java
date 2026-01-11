@@ -1,7 +1,6 @@
 package com.yx.swaggerv3_enum.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -21,15 +20,7 @@ import java.time.format.DateTimeFormatter;
 public class JacksonConfig {
 
     @Bean
-    public Jackson2ObjectMapperBuilderCustomizer disableEnumToString() {
-        return builder -> builder.featuresToDisable(
-                SerializationFeature.WRITE_ENUMS_USING_TO_STRING
-        );
-    }
-
-    @Bean
-    public ObjectMapper objectMapper(SimpleModule enumSchemaModule) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer(SimpleModule enumSchemaModule) {
 
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addSerializer(
@@ -41,15 +32,18 @@ public class JacksonConfig {
                 new LocalDateSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         );
 
+        return builder -> builder
+                // EnumDef 支持
+                .modules(enumSchemaModule, javaTimeModule)
 
-        objectMapper.registerModule(javaTimeModule);
-
-        // 注册模块到 ObjectMapper（优先级最高）
-        objectMapper.registerModule(enumSchemaModule);
-
-        // 反序列化 忽略Java类中 不存在的字段
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        return objectMapper;
+                // 枚举 & BigDecimal
+                .featuresToDisable(
+                        SerializationFeature.WRITE_ENUMS_USING_TO_STRING,       // 序列化时，禁用将枚举值转换为字符串
+                        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
+                )
+                .featuresToEnable(
+                        DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS       // 反序列化时，将float、double类型的字符串转换为BigDecimal
+                );
     }
 
 

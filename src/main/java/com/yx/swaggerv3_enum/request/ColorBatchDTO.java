@@ -2,6 +2,7 @@ package com.yx.swaggerv3_enum.request;
 
 import com.yx.swaggerv3_enum.enums.ColorEnum;
 import com.yx.swaggerv3_enum.enums.ContactPhoneEnum;
+import com.yx.swaggerv3_enum.enums.TaxRateEnum;
 import com.yx.swaggerv3_enum.enums.VideoResolutionEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -13,6 +14,9 @@ import java.util.List;
 @Setter
 @Schema(description = "包含 枚举数组的JSON对象")
 public class ColorBatchDTO {
+
+    @Schema(description = "（入参）税率列表")
+    private List<TaxRateEnum> taxRates;
 
     @Schema(description = "（入参）颜色列表")
     private List<ColorEnum> colors;
