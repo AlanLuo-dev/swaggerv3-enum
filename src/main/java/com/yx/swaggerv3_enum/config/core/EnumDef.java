@@ -29,6 +29,16 @@ public interface EnumDef<K extends Serializable, T extends Enum<T> & EnumDef<K, 
      */
     String getLabel();
 
+    /**
+     * 枚举的业务名称（用于错误提示、日志等）
+     * 例如：颜色、状态、类型
+     */
+    default String getEnumName() {
+        return this.getClass()
+                .getSimpleName()
+                .replace("Enum", "");
+    }
+
     Map<Class<?>, Map<? extends Serializable, String>> ENUM_MAP_CACHE = new ConcurrentHashMap<>();
 
     /**

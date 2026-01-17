@@ -14,4 +14,8 @@ public enum ColorEnum implements EnumDef<String, ColorEnum> {
     private final String value;
     private final String label;
 
+    @Override
+    public String getEnumName() {
+        return "颜色";
+    }
 }

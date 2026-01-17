@@ -10,7 +10,6 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.TypeMismatchException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -45,7 +44,6 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     private static final Integer PAYLOAD_MAX_LENGTH = 1024;
-
 
     /**
      * 处理Get请求中 使用@Valid @Validated验证路径中请求实体校验失败后抛出的异常
@@ -151,8 +149,20 @@ public class GlobalExceptionHandler {
         log.error("HttpMessageNotReadableException, request url: {} Http Message Not Readable. {}. {}", req.getRequestURI(), originalMsg, e.getMessage());
         String msg = null;
         Throwable cause = e.getCause();
-        if (cause instanceof JsonMappingException) {
-            JsonMappingException jme = (JsonMappingException) cause;
+        if (cause instanceof JsonMappingException jme) {
+            Throwable root = jme.getCause();
+
+            // 处理 枚举反序列化失败的场景
+            if (root instanceof InvalidEnumValueException enumEx) {
+                String fieldName = null;
+                if (jme.getPath() != null && !jme.getPath().isEmpty()) {
+                    fieldName = jme.getPath().get(0).getFieldName();
+                }
+                msg = fieldName == null ? enumEx.getMessage() : fieldName + ":" + enumEx.getMessage();
+
+                return APIError.invalidParam(msg);
+            }
+
             msg = jme.getOriginalMessage();
             List<JsonMappingException.Reference> path = jme.getPath();
             if (path != null && !path.isEmpty()) {

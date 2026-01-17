@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.yx.swaggerv3_enum.config.core.EnumDef;
+import com.yx.swaggerv3_enum.exceptionhandler.InvalidEnumValueException;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -53,7 +54,8 @@ public class EnumDefDeserializer<R extends Enum<R> & EnumDef<? extends Serializa
 //                "Unknown enum value for " + enumType.getSimpleName()
 //        );
 
-        return null;
+        // ⭐ 获取字段名
+        throw new InvalidEnumValueException(String.valueOf(inputValue), enumType);
     }
 
     private Serializable readNodeValue(JsonNode node) {
