@@ -10,7 +10,7 @@ public enum ColorEnum implements EnumDef<String, ColorEnum> {
 
     HONG_SE("red", "红色"),
     LAN_SE("blue", "蓝色"),
-    HEI_SE("black", "黑色色");
+    HEI_SE("black", "黑色");
 
     private final String value;
     private final String label;
