@@ -10,9 +10,9 @@ import lombok.Setter;
 @Schema(description = "颜色提交对象")
 public class ColorDTO {
 
-    @Schema(description = "颜色")
+    @Schema(description = "入参：颜色")
     private ColorEnum color;
 
-    @Schema(description = "用户名")
+    @Schema(description = "入参：用户名")
     private String username;
 }

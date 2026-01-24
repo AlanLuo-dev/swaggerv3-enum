@@ -31,6 +31,8 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
     @Override
     @SuppressWarnings("rawtypes")
     public Schema customize(Schema schema, AnnotatedType annotatedType) {
+        System.out.println("————————————————————————————————————————————————————————————————————————————");
+        System.out.println("schame: " + schema.getDescription() + "  schema Type: " + schema.getType());
         if (annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
             List<EnumDef<? extends Serializable, ?>> enumConstants =
                     List.of((EnumDef<? extends Serializable, ?>[])type.getRawClass().getEnumConstants());
@@ -72,7 +74,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
 
             EnumDef<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
             if (Objects.nonNull(enumConstant)) {
-                schema = createObjectSchema(enumConstant);
+                schema = createObjectSchema_111111(enumConstant, existDescription + description);
 
                 return schema;
             }
@@ -169,6 +171,31 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
 
         // items.setRequired(schema.getRequired());
         // items.setNullable(schema.getNullable());
+        // items.setDescription(schema.getDescription());
+
+        return items;
+    }
+
+    /**
+     * 创建 对象化的 Schema
+     *
+     * @param enumConstant 枚举
+     * @return ObjectSchema 对象
+     */
+    private Schema createObjectSchema_111111(EnumDef<? extends Serializable, ?> enumConstant, String description) {
+        Schema items = new ObjectSchema();
+
+        Schema valueSchema = PrimitiveType.createProperty(enumConstant.getValue().getClass());
+        valueSchema.setExample(enumConstant.getValue());
+        items.addProperty("value", valueSchema);
+
+        Schema labelSchema = new StringSchema();
+        labelSchema.setExample(enumConstant.getLabel());
+        items.addProperty("label", labelSchema);
+
+        // items.setRequired(schema.getRequired());
+        // items.setNullable(schema.getNullable());
+        items.setDescription(description);
         // items.setDescription(schema.getDescription());
 
         return items;

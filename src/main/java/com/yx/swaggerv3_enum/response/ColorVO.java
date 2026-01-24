@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @Schema(description = "返回数据")
 public class ColorVO {
 
-    @Schema(description = "颜色")
+    @Schema(description = "返回参数：颜色")
     private ColorEnum color;
 
-    @Schema(description = "用户名")
+    @Schema(description = "返回参数：用户名")
     private String username;
 }
