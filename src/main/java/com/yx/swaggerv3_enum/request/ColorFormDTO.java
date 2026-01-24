@@ -2,6 +2,7 @@ package com.yx.swaggerv3_enum.request;
 
 import com.yx.swaggerv3_enum.enums.ColorEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,8 @@ import lombok.Setter;
 @Schema(description = "颜色表单对象")
 public class ColorFormDTO {
 
-    @Schema(description = "颜色", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "颜色")
+    @NotNull
     private ColorEnum color;
 
     @Schema(description = "备注")
