@@ -4,6 +4,8 @@ package com.yx.swaggerv3_enum.exceptionhandler;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.yx.swaggerv3_enum.config.convert.EnumConvertContext;
+import com.yx.swaggerv3_enum.config.convert.EnumConvertErrorGroup;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -29,6 +31,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -215,6 +218,19 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public <U> APIError<U> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+        List<EnumConvertErrorGroup> invalidValues = EnumConvertContext.getAndClear();
+
+        if (!invalidValues.isEmpty()) {
+            // 这里你就可以用 EnumDef.getEnumName() 拼业务文案
+            EnumConvertErrorGroup enumConvertErrorGroup = invalidValues.get(0);
+            String inputInvalidValue = enumConvertErrorGroup.getInvalidValues().stream()
+                    .collect(Collectors.joining(",", "【", "】"));
+            String msg = inputInvalidValue + "不是合法的 " + enumConvertErrorGroup.getEnumName();
+
+            return APIError.invalidParam(msg);
+        }
+
+        // fallback：走原有校验错误
         Optional<String> optional = e.getBindingResult().getAllErrors()
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)

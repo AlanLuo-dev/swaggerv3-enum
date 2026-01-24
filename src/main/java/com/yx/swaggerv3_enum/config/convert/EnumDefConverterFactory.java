@@ -31,13 +31,19 @@ public class EnumDefConverterFactory<R extends Enum<R> & EnumDef<? extends Seria
     private static class BaseEnumConverter<U extends Enum<U> & EnumDef<? extends Serializable, U>>
             implements Converter<String, U> {
 
-        // 目标枚举类型
+        /**
+         * 枚举类型
+         */
         private final Class<U> enumType;
-        private final Map<Serializable, U> codeEnumValues;
+
+        /**
+         * 枚举值-枚举对象 Map映射
+         */
+        private final Map<Serializable, U> codeEnumMap;
 
         public BaseEnumConverter(Class<U> enumType) {
             this.enumType = enumType;
-            this.codeEnumValues = Arrays.stream(enumType.getEnumConstants())
+            this.codeEnumMap = Arrays.stream(enumType.getEnumConstants())
                     .collect(
                             Collectors.toMap(
                                     codeEnum -> Objects.toString(codeEnum.getValue()),
@@ -52,14 +58,21 @@ public class EnumDefConverterFactory<R extends Enum<R> & EnumDef<? extends Seria
          * 枚举常量匹配生效 是 调用 org.springframework.beans.TypeConverterDelegate#attemptToConvertStringToEnum 方法生效的
          * 故而，传入的source在codeEnumValues中不存在时，应该返回null
          *
-         * @param source
-         * @return
+         * @param source 输入值
+         * @return 转换后的枚举对象
          */
         @Override
         public U convert(@NonNull String source) {
-            // 调用BaseEnum的静态方法匹配枚举
-//            return BaseEnum.getByValue(source, enumType);  // 根据编码获取枚举实例
-            return this.codeEnumValues.get(source);
+            U result = this.codeEnumMap.get(source);
+            if (result == null) {
+
+                // 获取枚举的业务名称
+                final String enumName = enumType.getEnumConstants()[0].getEnumName();
+
+                // 添加到 ThreadLocal
+                EnumConvertContext.add(enumName, source);
+            }
+            return result;
         }
     }
 }

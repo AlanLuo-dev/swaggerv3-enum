@@ -2,13 +2,12 @@ package com.yx.swaggerv3_enum.controller;
 
 import com.yx.swaggerv3_enum.enums.ColorEnum;
 import com.yx.swaggerv3_enum.request.ColorFormBatchDTO;
-import com.yx.swaggerv3_enum.request.ColorFormDTO;
-import com.yx.swaggerv3_enum.response.ColorFormVO;
 import com.yx.swaggerv3_enum.response.ResultVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +35,8 @@ public class FormController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResultVO<List<ColorEnum>> application_x_www_form_urlencoded_EnumArray_As_Property_In_Object(@Parameter ColorFormBatchDTO form) {
+    public ResultVO<List<ColorEnum>> application_x_www_form_urlencoded_EnumArray_As_Property_In_Object(
+            @Validated @Parameter ColorFormBatchDTO form) {
         return new ResultVO<>(form.getColorList());
     }
 
