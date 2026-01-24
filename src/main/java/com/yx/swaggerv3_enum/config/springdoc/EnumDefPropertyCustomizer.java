@@ -10,14 +10,19 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
-import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.customizers.PropertyCustomizer;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -56,7 +61,9 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
                 HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
                 for (AnnotatedType _annotatedType : processedTypesFromContext) {
                     for (Annotation ctxAnnotation : _annotatedType.getCtxAnnotations()) {
-                        if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
+                        if (ctxAnnotation instanceof RequestBody
+                                || ctxAnnotation instanceof Parameter
+                                || ctxAnnotation instanceof Validated) {
                             System.out.println(" >>> 找到 @" + ctxAnnotation.annotationType().getSimpleName() + " 注解，当前参数是请求参数!!");
 
                             return schema;
@@ -118,7 +125,9 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
             for (AnnotatedType _annotatedType : processedTypesFromContext) {
                 System.out.println("       processedTypes: " + _annotatedType.getType());
                 for (Annotation ctxAnnotation : _annotatedType.getCtxAnnotations()) {
-                    if (ctxAnnotation instanceof RequestBody || ctxAnnotation instanceof Parameter) {
+                    if (ctxAnnotation instanceof RequestBody
+                            || ctxAnnotation instanceof Parameter
+                            || ctxAnnotation instanceof Validated) {
                         System.out.println("       找到 @" + ctxAnnotation.annotationType().getSimpleName() + " 注解，当前参数" + schema.getName() + " 是请求参数!!");
                         isResponseParam = false;
                         break outerLoop; // 跳出外层循环
