@@ -24,10 +24,6 @@ public interface EnumDefResolver {
         schema.setDescription(Optional.ofNullable(schema.getDescription()).orElse(StringUtils.EMPTY) + description);
     }
 
-    default boolean isNotCodeEnum(Class<?> rawClass) {
-        return !this.isCodeEnum(rawClass);
-    }
-
     default boolean isCodeEnum(Class<?> rawClass) {
         if (rawClass == null || !rawClass.isEnum()) {
             return false;
