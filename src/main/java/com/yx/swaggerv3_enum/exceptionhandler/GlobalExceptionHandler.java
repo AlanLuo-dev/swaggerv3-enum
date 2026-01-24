@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.yx.swaggerv3_enum.config.convert.EnumConvertContext;
 import com.yx.swaggerv3_enum.config.convert.EnumConvertErrorGroup;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
  *
  * @author
  */
+@Hidden
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
