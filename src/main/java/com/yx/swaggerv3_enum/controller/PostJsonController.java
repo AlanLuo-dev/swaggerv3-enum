@@ -92,8 +92,13 @@ public class PostJsonController {
             e.printStackTrace();
         }
 
+        ColorBatchVO colorBatchVO = new ColorBatchVO();
+        colorBatchVO.setColors(dto.getColors());
+        colorBatchVO.setTaxRates(dto.getTaxRates());
+        colorBatchVO.setVideoResolutions(dto.getVideoResolutions());
+        colorBatchVO.setContactPhones(dto.getContactPhones());
 
-        return new ResultVO<>(new ColorBatchVO(dto.getTaxRates(), dto.getColors(), dto.getVideoResolutions(), dto.getContactPhones()));
+        return new ResultVO<>(colorBatchVO);
     }
 
     //    @Operation(summary = "表单方式提交颜色")

@@ -16,16 +16,16 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "包含 枚举数组的JSON对象")
+@Schema(description = "（返回参数）包含 枚举对象数组")
 public class ColorBatchVO {
 
-    @Schema(description = "税率列表")
+    @Schema(description = "（返回参数）税率列表")
     private List<TaxRateEnum> taxRates;
 
-    @Schema(description = "颜色列表")
+    @Schema(description = "（返回参数）颜色列表")
     private List<ColorEnum> colors;
 
-    @Schema(description = "视频分辨率列表")
+    @Schema(description = "（返回参数）视频分辨率列表")
     private List<VideoResolutionEnum> videoResolutions;
 
     @Schema(description = "（返回参数）联系人手机号码列表（Long类型）")
