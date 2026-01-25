@@ -6,7 +6,6 @@ import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverterContextImpl;
 import io.swagger.v3.core.util.PrimitiveType;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
@@ -35,7 +34,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
         System.out.println("schame: " + schema.getDescription() + "  schema Type: " + schema.getType());
         if (annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
             List<EnumDef<? extends Serializable, ?>> enumConstants =
-                    List.of((EnumDef<? extends Serializable, ?>[])type.getRawClass().getEnumConstants());
+                    List.of((EnumDef<? extends Serializable, ?>[]) type.getRawClass().getEnumConstants());
 
             String description = enumConstants.stream()
                     .map(enumSchema -> enumSchema.getValue() + " = " + enumSchema.getLabel())
@@ -74,27 +73,12 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
 
             EnumDef<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
             if (Objects.nonNull(enumConstant)) {
-                schema = createObjectSchema_111111(enumConstant, existDescription + description);
+                schema = createObjectSchema(enumConstant, existDescription, description);
 
                 return schema;
             }
 
         }
-
-        // ~ START  ======表单场景：处理数组类型字段，合并items的枚举描述到顶层 ===============
-        if (schema instanceof ArraySchema) {
-            Schema itemsSchema = schema.getItems();
-            // 检查 items 是否是枚举类型且包含拼接的枚举描述
-            if (itemsSchema != null && itemsSchema.getDescription() != null
-                    && itemsSchema.getDescription().contains("<b>（")
-                    && schema.getDescription() != null ) {
-                // 将items的枚举描述合并到数组字段的顶层description
-                String enumDesc = itemsSchema.getDescription().substring(
-                        itemsSchema.getDescription().indexOf("<b>（"));
-                schema.setDescription(schema.getDescription() + enumDesc);
-            }
-        }
-        // ~ END    ======表单场景：处理数组类型字段，合并items的枚举描述到顶层 ===============
 
         // ~ START ========= 为返回参数的枚举的 Schema 实现对象化（即转为 ObjectSchema） ========================================
         Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
@@ -107,7 +91,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
             Map<Schema, List<EnumDef<? extends Serializable, ?>>> schemaEnumMap = new HashMap<>();
 
             // 收集 枚举类型的字段的 schema 和 枚举的对应关系，组成HashMap
-            for  (AnnotatedType _annotatedType : processedTypesFromContext) {
+            for (AnnotatedType _annotatedType : processedTypesFromContext) {
                 if (_annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
                     Schema resolve = modelConverterContext.resolve(_annotatedType);
 
@@ -117,30 +101,19 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
                 }
             }
 
-            // 返回参数标识：true = 当前Schema是返回参数，false = 当前Schema是请求参数
-            boolean isResponseParam = true;
-            outerLoop:// 定义外层循环标签
-            for (AnnotatedType _annotatedType : processedTypesFromContext) {
-                for (Annotation ctxAnnotation : _annotatedType.getCtxAnnotations()) {
-                    if (ctxAnnotation instanceof RequestBody
-                            || ctxAnnotation instanceof Parameter
-                            || ctxAnnotation instanceof Validated) {
-                        isResponseParam = false;
-                        break outerLoop; // 跳出外层循环
-                    }
-                }
-            }
-
             // ----------------------------------------------------------------
             // 为返回参数的 example 执行对象化
-            if (isResponseParam) {
-                Schema items = schema.getItems();
-                if (schemaEnumMap.containsKey(items)) {
-                    List<EnumDef<? extends Serializable, ?>> enumConstants = schemaEnumMap.get(items);
+            if (isResponseParam(processedTypesFromContext)) {
+                final String existDescription = schema.getDescription();
+                Schema existItems = schema.getItems();
+                if (schemaEnumMap.containsKey(existItems)) {
+                    List<EnumDef<? extends Serializable, ?>> enumConstants = schemaEnumMap.get(existItems);
                     Optional<EnumDef<? extends Serializable, ?>> optional = enumConstants.stream().findFirst();
                     if (optional.isPresent()) {
-                        items = createObjectSchema(optional.get());
-                        schema.items(items);
+                        String enumDesc = existItems.getDescription().substring(existItems.getDescription().indexOf("<b>（"));
+
+                        final Schema newItems = createObjectSchema(optional.get(), existDescription, enumDesc);
+                        schema.items(newItems);
                     }
                 }
             }
@@ -152,51 +125,32 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
         return schema;
     }
 
-    /**
-     * 创建 对象化的 Schema
-     *
-     * @param enumConstant 枚举
-     * @return ObjectSchema 对象
-     */
-    private Schema createObjectSchema(EnumDef<? extends Serializable, ?> enumConstant) {
-        Schema items = new ObjectSchema();
-
-        Schema valueSchema = PrimitiveType.createProperty(enumConstant.getValue().getClass());
-        valueSchema.setExample(enumConstant.getValue());
-        items.addProperty("value", valueSchema);
-
-        Schema labelSchema = new StringSchema();
-        labelSchema.setExample(enumConstant.getLabel());
-        items.addProperty("label", labelSchema);
-
-        // items.setRequired(schema.getRequired());
-        // items.setNullable(schema.getNullable());
-        // items.setDescription(schema.getDescription());
-
-        return items;
-    }
 
     /**
      * 创建 对象化的 Schema
      *
-     * @param enumConstant 枚举
+     * @param enumConstant      枚举
+     * @param existiDescription 已存在的描述
+     * @param description       枚举描述
      * @return ObjectSchema 对象
      */
-    private Schema createObjectSchema_111111(EnumDef<? extends Serializable, ?> enumConstant, String description) {
+    private Schema createObjectSchema(EnumDef<? extends Serializable, ?> enumConstant,
+                                      String existiDescription,
+                                      String description) {
         Schema items = new ObjectSchema();
 
         Schema valueSchema = PrimitiveType.createProperty(enumConstant.getValue().getClass());
+        valueSchema.setDescription("枚举实际值" + description);
         valueSchema.setExample(enumConstant.getValue());
+
         items.addProperty("value", valueSchema);
 
         Schema labelSchema = new StringSchema();
+        labelSchema.setDescription("枚举标签");
         labelSchema.setExample(enumConstant.getLabel());
-        items.addProperty("label", labelSchema);
 
-        // items.setRequired(schema.getRequired());
-        // items.setNullable(schema.getNullable());
-        items.setDescription(description);
-        // items.setDescription(schema.getDescription());
+        items.addProperty("label", labelSchema);
+        items.setDescription(existiDescription);
 
         return items;
     }
@@ -259,4 +213,28 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
         return (HashSet<AnnotatedType>) fieldValue;
     }
 
+    /**
+     * 判断当前 AnnotatedType 是否是返回参数
+     *
+     * @param processedTypesFromContext 已处理的 AnnotatedType 集合
+     * @return true = 当前Schema是返回参数，false = 当前Schema是请求参数
+     */
+    private boolean isResponseParam(HashSet<AnnotatedType> processedTypesFromContext) {
+        // 返回参数标识：true = 当前Schema是返回参数，false = 当前Schema是请求参数
+        boolean isResponseParam = true;
+        outerLoop:
+        // 定义外层循环标签
+        for (AnnotatedType _annotatedType : processedTypesFromContext) {
+            for (Annotation ctxAnnotation : _annotatedType.getCtxAnnotations()) {
+                if (ctxAnnotation instanceof RequestBody
+                        || ctxAnnotation instanceof Parameter
+                        || ctxAnnotation instanceof Validated) {
+                    isResponseParam = false;
+                    break outerLoop; // 跳出外层循环
+                }
+            }
+        }
+
+        return isResponseParam;
+    }
 }
