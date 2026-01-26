@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ColorFormVO {
 
-    @Schema(description = "颜色")
+    @Schema(description = "_（返回参数）颜色")
     private ColorEnum color;
 
     @Schema(description = "备注")

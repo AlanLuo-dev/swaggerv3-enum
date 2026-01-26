@@ -37,7 +37,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
                     List.of((EnumDef<? extends Serializable, ?>[]) type.getRawClass().getEnumConstants());
 
             String description = enumConstants.stream()
-                    .map(enumSchema -> enumSchema.getValue() + " = " + enumSchema.getLabel())
+                    .map(enumDef -> enumDef.getValue() + " = " + enumDef.getLabel())
                     .collect(Collectors.joining("，", "<b>（", "）</b>"));
             String existDescription = schema.getDescription();
             Optional<? extends Serializable> optional = enumConstants.stream().map(EnumDef::getValue).findFirst();
@@ -58,14 +58,10 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
             try {
                 ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
                 HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
-                for (AnnotatedType _annotatedType : processedTypesFromContext) {
-                    for (Annotation ctxAnnotation : _annotatedType.getCtxAnnotations()) {
-                        if (ctxAnnotation instanceof RequestBody
-                                || ctxAnnotation instanceof Parameter
-                                || ctxAnnotation instanceof Validated) {
-                            return schema;
-                        }
-                    }
+
+                boolean isResponseParam = isResponseParam(processedTypesFromContext);
+                if (!isResponseParam) {
+                    return schema;
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

@@ -11,7 +11,7 @@ import lombok.Setter;
 @Schema(description = "颜色表单对象")
 public class ColorFormDTO {
 
-    @Schema(description = "颜色")
+    @Schema(description = "_（入参）颜色")
     @NotNull
     private ColorEnum color;
 
