@@ -60,20 +60,16 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
                 HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
 
                 boolean isResponseParam = isResponseParam(processedTypesFromContext);
-                if (!isResponseParam) {
-                    return schema;
+                if (isResponseParam) {
+                    EnumDef<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
+                    if (Objects.nonNull(enumConstant)) {
+                        schema = createObjectSchema(enumConstant, existDescription, description);
+                    }
                 }
+                return schema;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-
-            EnumDef<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
-            if (Objects.nonNull(enumConstant)) {
-                schema = createObjectSchema(enumConstant, existDescription, description);
-
-                return schema;
-            }
-
         }
 
         // ~ START ========= 为返回参数的枚举的 Schema 实现对象化（即转为 ObjectSchema） ========================================
