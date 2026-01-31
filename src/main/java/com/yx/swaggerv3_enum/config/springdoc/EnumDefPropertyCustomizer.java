@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,21 +56,17 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
             if (Objects.isNull(jsonUnwrappedHandler)) {
                 return schema;
             }
-            try {
-                ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
-                HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
+            ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
+            HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
 
-                boolean isResponseParam = isResponseParam(processedTypesFromContext);
-                if (isResponseParam) {
-                    EnumDef<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
-                    if (Objects.nonNull(enumConstant)) {
-                        schema = createObjectSchema(enumConstant, existDescription, description);
-                    }
+            boolean isResponseParam = isResponseParam(processedTypesFromContext);
+            if (isResponseParam) {
+                EnumDef<? extends Serializable, ?> enumConstant = enumConstants.stream().findFirst().orElse(null);
+                if (Objects.nonNull(enumConstant)) {
+                    schema = createObjectSchema(enumConstant, existDescription, description);
                 }
-                return schema;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
+            return schema;
         }
 
         // ~ START ========= 为返回参数的枚举的 Schema 实现对象化（即转为 ObjectSchema） ========================================
@@ -77,40 +74,36 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
         if (Objects.isNull(jsonUnwrappedHandler)) {
             return schema;
         }
-        try {
-            ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
-            HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
-            Map<Schema, List<EnumDef<? extends Serializable, ?>>> schemaEnumMap = new HashMap<>();
+        ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
+        HashSet<AnnotatedType> processedTypesFromContext = getProcessedTypesFromContext(modelConverterContext);
+        Map<Schema, List<EnumDef<? extends Serializable, ?>>> schemaEnumMap = new HashMap<>();
 
-            // 收集 枚举类型的字段的 schema 和 枚举的对应关系，组成HashMap
-            for (AnnotatedType _annotatedType : processedTypesFromContext) {
-                if (_annotatedType.getType() instanceof JavaType type && type.isEnumType() && isCodeEnum(type.getRawClass())) {
-                    Schema resolve = modelConverterContext.resolve(_annotatedType);
+        // 收集 枚举类型的字段的 schema 和 枚举的对应关系，组成HashMap
+        for (AnnotatedType _annotatedType : processedTypesFromContext) {
+            if (_annotatedType.getType() instanceof JavaType type
+                    && type.isEnumType()
+                    && isCodeEnum(type.getRawClass())
+                    && modelConverterContext != null) {
+                Schema resolve = modelConverterContext.resolve(_annotatedType);
+                schemaEnumMap.put(resolve, List.of((EnumDef<? extends Serializable, ?>[]) type.getRawClass().getEnumConstants()));
+            }
+        }
 
-                    List<EnumDef<? extends Serializable, ?>> enumConstants =
-                            List.of((EnumDef<? extends Serializable, ?>[]) type.getRawClass().getEnumConstants());
-                    schemaEnumMap.put(resolve, enumConstants);
+        // ----------------------------------------------------------------
+        // 为返回参数的 example 执行对象化
+        if (isResponseParam(processedTypesFromContext)) {
+            final String existDescription = schema.getDescription();
+            Schema existItems = schema.getItems();
+            if (schemaEnumMap.containsKey(existItems)) {
+                List<EnumDef<? extends Serializable, ?>> enumConstants = schemaEnumMap.get(existItems);
+                Optional<EnumDef<? extends Serializable, ?>> optional = enumConstants.stream().findFirst();
+                if (optional.isPresent()) {
+                    String enumDesc = existItems.getDescription().substring(existItems.getDescription().indexOf("<b>（"));
+
+                    final Schema newItems = createObjectSchema(optional.get(), existDescription, enumDesc);
+                    schema.items(newItems);
                 }
             }
-
-            // ----------------------------------------------------------------
-            // 为返回参数的 example 执行对象化
-            if (isResponseParam(processedTypesFromContext)) {
-                final String existDescription = schema.getDescription();
-                Schema existItems = schema.getItems();
-                if (schemaEnumMap.containsKey(existItems)) {
-                    List<EnumDef<? extends Serializable, ?>> enumConstants = schemaEnumMap.get(existItems);
-                    Optional<EnumDef<? extends Serializable, ?>> optional = enumConstants.stream().findFirst();
-                    if (optional.isPresent()) {
-                        String enumDesc = existItems.getDescription().substring(existItems.getDescription().indexOf("<b>（"));
-
-                        final Schema newItems = createObjectSchema(optional.get(), existDescription, enumDesc);
-                        schema.items(newItems);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
         // ~ END ========= 为返回参数的枚举的 Schema 实现对象化（即转为 ObjectSchema） ========================================
 
@@ -158,51 +151,50 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
     /**
      * 从 Lambda 表达式（jsonUnwrappedHandler）中反射获取 arg$3 字段（ModelConverterContextImpl 实例）
      */
-    private ModelConverterContextImpl getArg3FromLambda(Function<AnnotatedType, Schema> lambdaInstance) throws Exception {
-
-        // 获取 Lambda 实例的实际类型（匿名内部类）
+    private ModelConverterContextImpl getArg3FromLambda(Function<AnnotatedType, Schema> lambdaInstance) {
         Class<?> lambdaClass = lambdaInstance.getClass();
         Field arg3Field = null;
-
-        // 遍历所有声明字段（包括合成字段、私有字段，必须用 getDeclaredFields()，不能用 getFields()）
-        for (Field field : lambdaClass.getDeclaredFields()) {
-            // 匹配字段名 arg$3（注意：字段名是固定的，与你调试观察一致）
-            if ("arg$3".equals(field.getName())) {
+        for (Field field : lambdaClass.getDeclaredFields()) {   // 遍历所有声明字段（包括合成字段、私有字段，必须用 getDeclaredFields()，不能用 getFields()）
+            if ("arg$3".equals(field.getName())) {              // 匹配字段名 arg$3（注意：字段名是固定的，与你调试观察一致）
                 arg3Field = field;
                 break;
             }
         }
+        if (arg3Field != null) {
+            arg3Field.setAccessible(true);                          // 暴力突破访问权限检查（关键：私有字段必须设置 setAccessible(true)）
 
-        if (arg3Field == null) {
-            return null;
+            // 获取字段值并强转为 ModelConverterContextImpl
+            try {
+                Object fieldValue = arg3Field.get(lambdaInstance);
+                if (fieldValue instanceof ModelConverterContextImpl) {
+                    return (ModelConverterContextImpl) fieldValue;
+                }
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
-
-        // 暴力突破访问权限检查（关键：私有字段必须设置 setAccessible(true)）
-        arg3Field.setAccessible(true);
-
-        // 获取字段值并强转为 ModelConverterContextImpl
-        Object fieldValue = arg3Field.get(lambdaInstance);
-        if (!(fieldValue instanceof ModelConverterContextImpl)) {
-            return null;
-        }
-
-        return (ModelConverterContextImpl) fieldValue;
+        return null;
     }
 
     /**
      * 从 ModelConverterContextImpl 中反射获取 processedTypes 字段
      */
-    private HashSet<AnnotatedType> getProcessedTypesFromContext(ModelConverterContextImpl context) throws Exception {
-        Field processedTypesField = ModelConverterContextImpl.class.getDeclaredField("processedTypes");
-        // 同样需要突破访问权限
-        processedTypesField.setAccessible(true);
-        Object fieldValue = processedTypesField.get(context);
+    private HashSet<AnnotatedType> getProcessedTypesFromContext(ModelConverterContextImpl context){
+        try {
+            Field processedTypesField = ModelConverterContextImpl.class.getDeclaredField("processedTypes");
 
-        if (!(fieldValue instanceof HashSet)) {
-            return null;
+            // 同样需要突破访问权限
+            processedTypesField.setAccessible(true);
+            Object fieldValue = processedTypesField.get(context);
+
+            if (fieldValue instanceof HashSet) {
+                return (HashSet<AnnotatedType>) fieldValue;
+            }
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
 
-        return (HashSet<AnnotatedType>) fieldValue;
+        return new HashSet<>(Collections.emptySet());
     }
 
     /**
