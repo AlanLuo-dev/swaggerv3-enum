@@ -10,6 +10,8 @@ import com.yx.swaggerv3_enum.response.ColorBatchVO;
 import com.yx.swaggerv3_enum.response.ColorVO;
 import com.yx.swaggerv3_enum.response.ResultVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,33 +31,31 @@ public class PostJsonController {
     private final ObjectMapper objectMapper;
 
 
-//
-//    @Operation(summary = "POST方法提交JSON（枚举 作为Controller方法的参数）")
-//    @PostMapping("/RequestBody/Enum_As_Controller_Method_Parameter")
-//    public ResultVO<ColorEnum> _RequestBody_Enum_As_Controller_Method_Parameter(
-//            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "颜色对象")
-//            @RequestBody ColorEnum color) {
-//        return new ResultVO<>(color);
-//    }
-//
-//
-//
-//    @Operation(summary = "POST方法提交JSON（枚举数组 作为Controller方法的参数）")
-//    @PostMapping("/RequestBody/EnumArray_As_Controller_Method_Parameter")
-//    public ResultVO<List<ColorEnum>> _RequestBody_EnumArray_As_Controller_Method_Parameter(
-//            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-//                    description = "颜色枚举列表",
-//                    required = true,
-//                    content = @Content(
-//                            schema = @Schema(
-//                                    implementation = ColorEnum.class,
-//                                    type = "array"
-//                            )
-//                    )
-//            )
-//            @RequestBody List<ColorEnum> colors) {
-//        return new ResultVO<>(colors);
-//    }
+
+    @Operation(summary = "Json（枚举 作为Controller方法的参数）")
+    @PostMapping("/RequestBody/enum-in-method")
+    public ResultVO<ColorEnum> _RequestBody_Enum_In_Method(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "颜色对象")
+            @RequestBody ColorEnum color) {
+        return new ResultVO<>(color);
+    }
+
+    @Operation(summary = "Json（枚举数组 作为Controller方法的参数）")
+    @PostMapping("/RequestBody/enum-array-in-method")
+    public ResultVO<List<ColorEnum>> _RequestBody_EnumArrayInMethod(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "颜色枚举列表",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(
+                                    implementation = ColorEnum.class,
+                                    type = "array"
+                            )
+                    )
+            )
+            @RequestBody List<ColorEnum> colors) {
+        return new ResultVO<>(colors);
+    }
 
     @Operation(summary = "Json（枚举）")
     @PostMapping("/RequestBody/enum")

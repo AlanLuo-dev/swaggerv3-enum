@@ -154,6 +154,14 @@ public class GlobalExceptionHandler {
         log.error("HttpMessageNotReadableException, request url: {} Http Message Not Readable. {}. {}", req.getRequestURI(), originalMsg, e.getMessage());
         String msg = null;
         Throwable cause = e.getCause();
+        // Jackson 严格 JSON 校验失败
+        if (cause instanceof MismatchedInputException
+                && cause.getMessage() != null
+                && cause.getMessage().contains("Trailing token")) {
+
+            return APIError.invalidParam("请求体不是合法 JSON，请检查是否存在多余内容");
+        }
+
         if (cause instanceof JsonMappingException jme) {
             Throwable root = jme.getCause();
 
@@ -175,6 +183,7 @@ public class GlobalExceptionHandler {
                 log.warn(msg);
             }
         }
+
 
         return APIError.invalidParam(msg);
     }
