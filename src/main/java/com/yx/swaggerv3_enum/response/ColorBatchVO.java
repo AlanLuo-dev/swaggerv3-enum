@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "（返回参数）包含 枚举对象数组")
+@Schema(description = "返回参数（ColorBatchVO类的注释）")
 public class ColorBatchVO {
 
     @Schema(description = "（返回参数）税率列表")

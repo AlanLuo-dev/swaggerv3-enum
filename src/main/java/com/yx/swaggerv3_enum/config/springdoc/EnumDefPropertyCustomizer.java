@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -68,6 +69,9 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
             }
             return schema;
         }
+        // ~ START  ====== 处理表单 集合/Array/Map请求参数的场景，合并items的枚举描述到顶层 ===============
+        formRequestContainerParameterHandler(schema, annotatedType);
+        // ~ END    ====== 处理表单 集合/Array/Map请求参数的场景，合并items的枚举描述到顶层 ===============
 
         // ~ START ========= 为返回参数的枚举的 Schema 实现对象化（即转为 ObjectSchema） ========================================
         Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
@@ -108,6 +112,60 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
         // ~ END ========= 为返回参数的枚举的 Schema 实现对象化（即转为 ObjectSchema） ========================================
 
         return schema;
+    }
+
+
+    /**
+     * 处理表单 集合/Array/Map请求参数的场景
+     *
+     * @param annotatedType AnnotatedType 实例
+     */
+    private void formRequestContainerParameterHandler(Schema schema, AnnotatedType annotatedType) {
+
+        // 参数类型是 数组/Collection/Map
+        final JavaType content;
+        if (annotatedType.getType() instanceof JavaType type
+                && type.isContainerType()
+                && (content = type.getContentType()) != null
+                && content.isEnumType()
+                && EnumDef.class.isAssignableFrom(content.getRawClass())
+        ) {
+
+            Function<AnnotatedType, Schema> jsonUnwrappedHandler = annotatedType.getJsonUnwrappedHandler();
+            if (Objects.nonNull(jsonUnwrappedHandler)) {
+                ModelConverterContextImpl modelConverterContext = getArg3FromLambda(jsonUnwrappedHandler);
+                HashSet<AnnotatedType> processedTypes = getProcessedTypesFromContext(modelConverterContext);
+
+                boolean isJsonRequest = hasAnnotation(processedTypes, RequestBody.class);
+                boolean isFormRequest = hasAnnotation(processedTypes, Parameter.class) && !isJsonRequest;
+
+                // 只针对 表单 请求参数
+                if (isFormRequest) {
+                    Schema itemsSchema = schema.getItems();
+                    // 检查 items 是否是枚举类型且包含拼接的枚举描述
+                    if (itemsSchema != null && itemsSchema.getDescription() != null
+                            && itemsSchema.getDescription().contains("<b>（")
+                            && schema.getDescription() != null ) {
+                        // 将items的枚举描述合并到数组字段的顶层description
+                        String enumDesc = itemsSchema.getDescription().substring(
+                                itemsSchema.getDescription().indexOf("<b>（"));
+                        schema.setDescription(schema.getDescription() + enumDesc);
+                    }
+                }
+            }
+
+        }
+    }
+
+    private boolean hasAnnotation(Set<AnnotatedType> types, Class<? extends Annotation> annoClass) {
+        for (AnnotatedType at : types) {
+            for (Annotation a : at.getCtxAnnotations()) {
+                if (annoClass.isInstance(a)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 
@@ -179,7 +237,7 @@ public class EnumDefPropertyCustomizer implements PropertyCustomizer {
     /**
      * 从 ModelConverterContextImpl 中反射获取 processedTypes 字段
      */
-    private HashSet<AnnotatedType> getProcessedTypesFromContext(ModelConverterContextImpl context){
+    private HashSet<AnnotatedType> getProcessedTypesFromContext(ModelConverterContextImpl context) {
         try {
             Field processedTypesField = ModelConverterContextImpl.class.getDeclaredField("processedTypes");
 

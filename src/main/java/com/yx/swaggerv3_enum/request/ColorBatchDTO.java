@@ -15,15 +15,15 @@ import java.util.List;
 @Schema(description = "包含 枚举数组的JSON对象")
 public class ColorBatchDTO {
 
-    @Schema(description = "（入参）税率列表")
+    @Schema(description = "（Json入参）税率数组")
     private List<TaxRateEnum> taxRates;
 
-    @Schema(description = "（入参）颜色列表")
+    @Schema(description = "（Json入参）颜色数组")
     private List<ColorEnum> colors;
 
-    @Schema(description = "（入参）视频分辨率列表")
+    @Schema(description = "（Json入参）视频分辨率数组")
     private List<VideoResolutionEnum> videoResolutions;
 
-    @Schema(description = "（入参）联系人手机号码列表（Long类型）")
+    @Schema(description = "（Json入参）联系人手机号码数组（Long类型）")
     private List<ContactPhoneEnum> contactPhones;
 }
