@@ -1,8 +1,8 @@
 package com.yx.swaggerv3_enum.controller;
 
-import com.yx.swaggerv3_enum.enums.ColorEnum;
 import com.yx.swaggerv3_enum.request.ColorFormBatchDTO;
 import com.yx.swaggerv3_enum.request.ColorFormDTO;
+import com.yx.swaggerv3_enum.response.ColorFormBatchVO;
 import com.yx.swaggerv3_enum.response.ColorFormVO;
 import com.yx.swaggerv3_enum.response.ResultVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,8 +13,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Tag(name = "表单入参")
 @RestController
@@ -38,9 +36,12 @@ public class FormController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResultVO<List<ColorEnum>> application_x_www_form_urlencoded_EnumArray_As_Property_In_Object(
+    public ResultVO<ColorFormBatchVO> application_x_www_form_urlencoded_EnumArray_As_Property_In_Object(
             @Validated @Parameter ColorFormBatchDTO form) {
-        return new ResultVO<>(form.getColorList());
+        ColorFormBatchVO colorFormBatchVO = new ColorFormBatchVO();
+        colorFormBatchVO.setColorList(form.getColorList());
+        colorFormBatchVO.setVideoResolutionList(form.getVideoResolutionList());
+        return new ResultVO<>(colorFormBatchVO);
     }
 
     @Operation(summary = "提交表单：multipart/form-data （枚举 作为对象参数的属性）")
