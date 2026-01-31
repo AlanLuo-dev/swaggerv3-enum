@@ -57,15 +57,15 @@ public class PostJsonController {
 //        return new ResultVO<>(colors);
 //    }
 
-    @Operation(summary = "POST方法提交JSON（枚举 作为对象参数的属性）")
-    @PostMapping("/RequestBody/Enum_As_Property_In_Object")
-    public ResultVO<ColorVO> _RequestBody_Enum_As_Property_In_Object(@RequestBody ColorDTO dto) {
+    @Operation(summary = "Json（枚举）")
+    @PostMapping("/RequestBody/enum")
+    public ResultVO<ColorVO> _RequestBody_Enum(@RequestBody ColorDTO dto) {
         return new ResultVO<>(new ColorVO(dto.getColor(), dto.getUsername()));
     }
 
-    @Operation(summary = "POST方法提交JSON (枚举数组 作为对象参数的属性)")
-    @PostMapping("/RequestBody/EnumArray_As_Parameter_In_Object")
-    public ResultVO<ColorBatchVO> _RequestBody_EnumArray_As_Parameter_In_Object(@RequestBody ColorBatchDTO dto) {
+    @Operation(summary = "Json (枚举数组)")
+    @PostMapping("/RequestBody/enum-array")
+    public ResultVO<ColorBatchVO> _RequestBody_EnumArray(@RequestBody ColorBatchDTO dto) {
         objectMapper.getRegisteredModuleIds()
                 .forEach(System.out::println);
 
