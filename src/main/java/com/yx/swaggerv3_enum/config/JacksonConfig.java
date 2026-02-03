@@ -41,8 +41,8 @@ public class JacksonConfig {
                         DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
                 )
                 .featuresToEnable(
-                        DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS,       // 反序列化时，将float、double类型的字符串转换为BigDecimal
-                        DeserializationFeature.FAIL_ON_TRAILING_TOKENS
+                        DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS,      // 反序列化时，将float、double类型的字符串转换为BigDecimal
+                        DeserializationFeature.FAIL_ON_TRAILING_TOKENS          // 开启 jackson 反序列化的 严格模式
                 );
     }
 
