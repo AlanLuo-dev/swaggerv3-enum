@@ -100,13 +100,4 @@ public class PostJsonController {
 
         return new ResultVO<>(colorBatchVO);
     }
-
-    //    @Operation(summary = "表单方式提交颜色")
-//    @PostMapping("/color/form")
-//    public ResultVO<ColorEnum> postForm(@Parameter(description = "颜色", schema = @Schema(implementation = ColorEnum.class))
-//                                        @RequestParam ColorEnum color) {
-//        return new ResultVO<>(color);
-//    }
-//
-
 }
