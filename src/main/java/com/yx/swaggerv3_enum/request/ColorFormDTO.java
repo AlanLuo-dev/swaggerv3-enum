@@ -12,7 +12,7 @@ import lombok.Setter;
 public class ColorFormDTO {
 
     @Schema(description = "_（入参）颜色")
-    @NotNull
+    @NotNull(message = "颜色不能为空")
     private ColorEnum color;
 
     @Schema(description = "备注")

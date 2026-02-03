@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api")
 public class FormController {
 
+    /* START -->  application/x-www-form-urlencoded 表单 ----------------------------------*/
+
     @Operation(summary = "application/x-www-form-urlencoded 表单（枚举）")
     @PostMapping(
             value = "/application/x-www-form-urlencoded/enum",
@@ -41,6 +43,9 @@ public class FormController {
         colorFormBatchVO.setVideoResolutionList(form.getVideoResolutionList());
         return new ResultVO<>(colorFormBatchVO);
     }
+    /* END -->  application/x-www-form-urlencoded 表单 ----------------------------------*/
+
+    /* START -->  multipart/form-data 表单 ----------------------------------*/
 
     @Operation(summary = "multipart/form-data 表单（枚举）")
     @PostMapping(
@@ -51,4 +56,20 @@ public class FormController {
     public ResultVO<ColorFormVO> multipart_form_data_enum(@Validated @Parameter ColorFormDTO form) {
         return new ResultVO<>(new ColorFormVO(form.getColor(), form.getNote()));
     }
+
+    @Operation(summary = "multipart/form-data 表单（枚举数组）")
+    @PostMapping(
+            value = "/multipart/form-data/enum-array",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResultVO<ColorFormBatchVO> multipart_form_data_enum_array(@Validated @Parameter ColorFormBatchDTO form) {
+        ColorFormBatchVO colorFormBatchVO = new ColorFormBatchVO();
+        colorFormBatchVO.setColorList(form.getColorList());
+        colorFormBatchVO.setVideoResolutionList(form.getVideoResolutionList());
+
+        return new ResultVO<>(colorFormBatchVO);
+    }
+
+    /* END -->  multipart/form-data 表单 ----------------------------------*/
 }
